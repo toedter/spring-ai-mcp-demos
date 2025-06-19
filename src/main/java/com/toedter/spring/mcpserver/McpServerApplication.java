@@ -9,8 +9,11 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class McpServerApplication {
 	@Bean
-	public ToolCallbackProvider weatherTools(WeatherService weatherService) {
-		return MethodToolCallbackProvider.builder().toolObjects(weatherService).build();
+	public ToolCallbackProvider weatherTools(WeatherService weatherService, QuoteService quoteService) {
+		return MethodToolCallbackProvider.builder()
+				.toolObjects(weatherService)
+				.toolObjects(quoteService)
+				.build();
 	}
 
 	public static void main(String[] args) {

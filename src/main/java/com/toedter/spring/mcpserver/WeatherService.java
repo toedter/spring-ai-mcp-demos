@@ -47,10 +47,10 @@ public class WeatherService {
 	public String getWeatherForecastByLocation(double latitude, double longitude, String units) {
 
 		System.out.println(latitude + "," + longitude);
-        return restClient.get()
-            .uri("/current?latitude={latitude}&longitude={longitude}&units={units}", latitude, longitude, units)
-            .retrieve()
-            .body(String.class);
+		return restClient.get()
+				.uri("/current?latitude={latitude}&longitude={longitude}&units={units}", latitude, longitude, units)
+				.retrieve()
+				.body(String.class);
 	}
 
 	public static void main(String[] args) {
