@@ -8,16 +8,18 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class McpServerApplication {
-	@Bean
-	public ToolCallbackProvider weatherTools(WeatherService weatherService, QuoteService quoteService) {
-		return MethodToolCallbackProvider.builder()
-				.toolObjects(weatherService)
-				.toolObjects(quoteService)
-				.build();
-	}
+    @Bean
+    public ToolCallbackProvider weatherTools(
+            WeatherService weatherService,
+            QuoteService quoteService,
+            MovieService movieService) {
+        return MethodToolCallbackProvider.builder()
+                .toolObjects(weatherService, quoteService, movieService)
+                .build();
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(McpServerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(McpServerApplication.class, args);
+    }
 
 }

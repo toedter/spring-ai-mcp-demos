@@ -21,13 +21,13 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 @Service
-public class WeatherService {
+public class MovieService {
 
-	private static final String BASE_URL = "http://localhost:8081/api";
+	private static final String BASE_URL = "http://localhost:8080/api";
 
 	private final RestClient restClient;
 
-	public WeatherService() {
+	public MovieService() {
 
 		this.restClient = RestClient.builder()
 			.baseUrl(BASE_URL)
@@ -37,25 +37,25 @@ public class WeatherService {
 	}
 
 	/**
-	 * Get current weather for specific latitude and longitude
-	 * @param latitude Latitude
-	 * @param longitude Longitude
-	 * @return The current weather for the given location
+	 * Get the top ranked movies at imdb
+	 * @param pageNumber page Number
+	 * @param pageSize page size
+	 * @return The ranked list of movies
 	 * @throws RestClientException if the request fails
 	 */
-	@Tool(description = "Get the current weather forecast for specific latitude/longitude, units are 'metric' or 'imperial', default is 'metric'.")
-	public String getWeatherForecastByLocation(double latitude, double longitude, String units) {
+	@Tool(description = "Get the top ranked movies at imdb. The API supports pagination with 'pageNumber' and 'pageSize' parameters. the page number starts at 0. The default page size is 10, and the maximum is 250.")
+	public String getTopRankedMovies(int pageNumber, int pageSize) {
 
-		System.out.println(latitude + "," + longitude);
+		System.out.println("pagination: " + pageNumber + "," + pageSize);
 		return restClient.get()
-				.uri("/current?latitude={latitude}&longitude={longitude}&units={units}", latitude, longitude, units)
+				.uri("/movies?page[number]={pageNumber}&page[size]={pageSize}", pageNumber, pageSize)
 				.retrieve()
 				.body(String.class);
 	}
 
 	public static void main(String[] args) {
-		WeatherService client = new WeatherService();
-		System.out.println(client.getWeatherForecastByLocation(47.6062, -122.3321, "metric"));
+		MovieService client = new MovieService();
+		System.out.println(client.getTopRankedMovies(0, 250));
 	}
 
 }
