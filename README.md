@@ -2,7 +2,7 @@
 
 A demo mcp server written in Java with Spring Boot 3.5.x and Spring AI.
 
-## How to run it
+## How to run the mcp server
 
 1. **Build the MCP server**
 
@@ -27,7 +27,7 @@ A demo mcp server written in Java with Spring Boot 3.5.x and Spring AI.
             "command": "java",
             "args": [
               "-jar",
-              "D:\\dev\\git\\spring-ai-mcp-server\\build\\libs\\spring-ai-mcp-server-0.0.1-SNAPSHOT.jar",
+              "D:\\dev\\git\\spring-ai-mcp-demos\\mcp-server\\build\\libs\\mcp-server-0.0.1-SNAPSHOT.jar",
               "--spring.profiles.active=stdio"
             ]
           }

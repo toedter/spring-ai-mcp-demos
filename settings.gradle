@@ -1,1 +1,11 @@
-rootProject.name = 'spring-ai-mcp-server'
+pluginManagement {
+    repositories {
+        maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'https://repo.spring.io/snapshot' }
+        gradlePluginPortal()
+    }
+}
+
+include 'mcp-server'
+
+rootProject.name = 'spring-ai-mcp-demos'
