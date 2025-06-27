@@ -1,6 +1,6 @@
-# spring-ai-mcp-server
+# Spring AI MCP Demos
 
-A demo mcp server written in Java with Spring Boot 3.5.x and Spring AI.
+Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x and Spring AI.
 
 ## How to run the mcp server
 
