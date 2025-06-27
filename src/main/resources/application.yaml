@@ -1,0 +1,34 @@
+server:
+  port: 8082
+
+spring:
+  ai:
+    mcp:
+      server:
+        name: demo-mcp-server
+        version: 0.0.1
+        enabled: true
+        stdio: false
+        sse-message-endpoint: /mcp/message
+        type: sync
+        resource-change-notification: true
+        tool-change-notification: true
+        prompt-change-notification: true
+
+### for STDIO
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        stdio
+
+  ai:
+    mcp:
+      server:
+        stdio: true
+
+  main:
+    banner-mode: off
+
+logging.pattern.console:
