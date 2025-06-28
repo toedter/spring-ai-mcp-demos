@@ -4,9 +4,11 @@
       "command": "java",
       "args": [
         "-jar",
-        "D:\\dev\\git\\spring-ai-mcp-demos\\mcp-server\\build\\libs\\mcp-server-0.0.1-SNAPSHOT.jar",
-        "--spring.profiles.active=stdio"
-      ]
+        "D:\\dev\\git\\spring-ai-mcp-demos\\mcp-server\\build\\libs\\mcp-server-0.0.1-SNAPSHOT.jar"
+      ],
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "stdio"
+      }
     }
   }
 }
