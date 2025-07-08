@@ -12,7 +12,7 @@ Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x an
 
 2. **Download and install Claude Desktop**
 
-    - Go to [https://github.com/kaikreuzer/claude-desktop/releases](https://github.com/kaikreuzer/claude-desktop/releases)
+    - Go to [https://claude.ai/download](https://claude.ai/download)
     - Download the latest release for your operating system and extract it.
 
 3. **Configure Claude Desktop**
