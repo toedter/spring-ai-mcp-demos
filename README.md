@@ -43,7 +43,7 @@ Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x an
 4. **Start Claude Desktop**
 
     - Launch Claude Desktop.
-    - Select the configured MCP server and start it.
+    - Click on the "Search and Tools" icon and check if you see "mcp-demo-stdio".
 
 5. **Use the demo**
 
