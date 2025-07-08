@@ -47,8 +47,7 @@ Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x an
 5. **Use the demo**
 
     - Interact with the MCP server through Claude Desktop’s UI.
-    - You could asks questions like "From which movie is Kai's favorite quote".
-    - In Claude Desktop, after starting the MCP server, you can ask questions like:
+    - In Claude Desktop you can ask questions like:
       - `From which movies is Kai's favorite quote?`
     - To integrate with a movie demo server, follow the steps below.
 
