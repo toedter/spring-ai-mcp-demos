@@ -14,6 +14,7 @@ Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x an
 
     - Go to [https://claude.ai/download](https://claude.ai/download)
     - Download the latest release for your operating system and extract it.
+    - Make sure to disable Web access in the settings of Claude Desktop.
 
 3. **Configure Claude Desktop**
 
@@ -58,11 +59,9 @@ Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x an
         ./gradlew bootRun
         ```
       - The movie demo server will start on `http://localhost:8080`.
-      - Ask Movie-Related Questions in Claude Desktop**
-  
-      - In Claude Desktop, after starting the MCP server, you can ask questions like:
-          - `From which movies is Kai's favorite quote?`
+      - In Claude Desktop you can now ask questions like:
           - `List all movies directed by Quentin Tarantino.`
+          - `Which movies directed by Christopher Nolan are in the top ten?`
   
 ## License
 
