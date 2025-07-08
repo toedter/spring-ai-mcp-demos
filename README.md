@@ -60,7 +60,7 @@ Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x an
         ```
       - The movie demo server will start on `http://localhost:8080`.
       - In Claude Desktop you can now ask questions like:
-          - `List all movies directed by Quentin Tarantino.`
+          - `How many movies directed by Quentin Tarantino are in the top 100?`
           - `Which movies directed by Christopher Nolan are in the top ten?`
   
 ## License
