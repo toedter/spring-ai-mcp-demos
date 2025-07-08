@@ -1,0 +1,12 @@
+spring.application.name: spring-ai-mcp-client-stdio
+server.port: 8083
+
+spring.ai.ollama.base-url: http://localhost:11434
+spring.ai.ollama.chat.options.model: llama3.2:1b
+
+spring.ai.mcp.client.toolcallback.enabled: true
+spring.ai.mcp.client.type: SYNC
+
+spring.ai.mcp.client.stdio.servers-configuration: classpath:/mcp_servers_config.json
+
+logging.level.org.springframework.ai: DEBUG

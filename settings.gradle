@@ -7,6 +7,7 @@ pluginManagement {
 }
 
 include 'mcp-server'
+include 'mcp-client'
 include 'authorization-server'
 
 rootProject.name = 'spring-ai-mcp-demos'
