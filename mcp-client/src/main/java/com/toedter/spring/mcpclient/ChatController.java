@@ -15,7 +15,7 @@ public class ChatController {
     public ChatController(ChatClient.Builder chatClientBuilder, ToolCallbackProvider tools) {
 
         this.chatClient = chatClientBuilder
-                .defaultSystem("Call tools when asked about movies or quotes.")
+                .defaultSystem("You are an assistant that must always use the \"getKaisFavoriteMovieQuote\" tool to answer any question about movie quotes, their origins, or related information. Do not answer directly; always call the tool for any movie quote query.")
                 .defaultToolCallbacks(tools)
                 .build();
     }
