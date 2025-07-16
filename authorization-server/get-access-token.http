@@ -1,4 +1,0 @@
-POST http://localhost:9000/oauth2/token
-Content-Type: application/x-www-form-urlencoded
-
-client_id=mcp-client&client_secret=secret&grant_type=client_credentials&scope=mcp.tools

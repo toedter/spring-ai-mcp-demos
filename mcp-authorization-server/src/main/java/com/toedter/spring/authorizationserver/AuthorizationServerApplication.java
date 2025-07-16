@@ -1,4 +1,4 @@
-package com.toedter.workshops.springrest.lab5.authorizationserver;
+package com.toedter.spring.authorizationserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,10 +14,10 @@ import java.util.Collections;
 import java.util.List;
 
 @SpringBootApplication
-public class DefaultAuthorizationServerApplication {
+public class AuthorizationServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DefaultAuthorizationServerApplication.class, args);
+        SpringApplication.run(AuthorizationServerApplication.class, args);
     }
 
     @Bean
