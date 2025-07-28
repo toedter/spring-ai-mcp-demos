@@ -43,7 +43,7 @@ public class MovieService {
 	 * @return The ranked list of movies
 	 * @throws RestClientException if the request fails
 	 */
-	@Tool(description = "Get the top ranked movies at imdb. The API supports pagination with 'pageNumber' and 'pageSize' parameters. the page number starts at 0. The default page size is 10, and the maximum is 250.")
+	@Tool(description = "Get the top ranked movies at imdb. The API supports pagination with 'pageNumber' and 'pageSize' parameters. The page number starts at 0. The default page size is 10, and the maximum is 250.")
 	public String getTopRankedMovies(int pageNumber, int pageSize) {
 
 		System.out.println("pagination: " + pageNumber + "," + pageSize);
