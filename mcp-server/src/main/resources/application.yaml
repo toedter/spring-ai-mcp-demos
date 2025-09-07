@@ -8,12 +8,18 @@ spring:
         name: demo-mcp-server
         version: 0.0.1
         enabled: true
-        stdio: false
-        sse-message-endpoint: /mcp/message
-        type: sync
-        resource-change-notification: true
-        tool-change-notification: true
-        prompt-change-notification: true
+
+
+### for SSE Security
+---
+server:
+  port: 8082
+
+spring:
+  config:
+    activate:
+      on-profile:
+        secure
 
   security:
     oauth2:
@@ -22,6 +28,16 @@ spring:
           jwk-set-uri: http://localhost:9000/oauth2/jwks
           issuer-uri: http://localhost:9000
           audiences: mcp-audience
+
+  ai:
+    mcp:
+      server:
+        stdio: false
+        sse-message-endpoint: /mcp/message
+        type: sync
+        resource-change-notification: true
+        tool-change-notification: true
+        prompt-change-notification: true
 
 ### for STDIO
 ---
@@ -38,5 +54,6 @@ spring:
 
   main:
     banner-mode: off
+    web-application-type: none
 
 logging.pattern.console:
