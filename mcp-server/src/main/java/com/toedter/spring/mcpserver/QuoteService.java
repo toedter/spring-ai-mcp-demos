@@ -17,14 +17,12 @@ package com.toedter.spring.mcpserver;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 
 @Service
 public class QuoteService {
-	@Tool(description = "Get Kai's favorite movie quote")
+	@Tool(description = "Get Kai’s favorite movie quote.")
 	public String getKaisFavoriteMovieQuote() {
-		return "With great power comes great responsibility";
+		return "With great power comes great responsibility.";
 	}
 
 	public static void main(String[] args) {

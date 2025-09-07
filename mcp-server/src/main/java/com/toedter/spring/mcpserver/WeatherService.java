@@ -43,7 +43,10 @@ public class WeatherService {
 	 * @return The current weather for the given location
 	 * @throws RestClientException if the request fails
 	 */
-	@Tool(description = "Get the current weather forecast for specific latitude/longitude, units are 'metric' or 'imperial', default is 'metric'.")
+	@Tool(description = """
+            Get the current weather forecast for a specific latitude and longitude.
+            Units can be 'metric' or 'imperial'; the default is 'metric'.
+            """)
 	public String getWeatherForecastByLocation(double latitude, double longitude, String units) {
 
 		System.out.println(latitude + "," + longitude);
