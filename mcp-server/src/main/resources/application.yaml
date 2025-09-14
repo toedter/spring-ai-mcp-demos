@@ -7,13 +7,16 @@ spring:
       server:
         name: demo-mcp-server
         version: 0.0.1
+        protocol: STREAMABLE
         enabled: true
         stdio: false
-        sse-message-endpoint: /mcp/message
         type: sync
         resource-change-notification: true
         tool-change-notification: true
         prompt-change-notification: true
+        streamable-http:
+          mcp-endpoint: /api/mcp
+          keep-alive-interval: 30s
 
   security:
     oauth2:
