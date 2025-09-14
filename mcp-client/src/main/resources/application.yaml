@@ -4,16 +4,12 @@ server.port: 8083
 #spring.ai.ollama.base-url: http://localhost:11434
 #spring.ai.ollama.chat.options.model: mistral
 
-spring.ai.mcp.client.toolcallback.enabled: true
-spring.ai.mcp.client.type: SYNC
-
-spring.ai.mcp.client.stdio.servers-configuration: classpath:/mcp_servers_config.json
-
 logging.level.org.springframework.ai: DEBUG
 
-spring:
-  ai:
-    mcp:
-      client:
-        transport: stdio
-        model: ollama/mistral
+spring.ai.mcp.client:
+  transport: stdio
+  model: ollama/mistral
+  type: SYNC
+  toolcallback:
+    enabled: true
+  stdio.servers-configuration: classpath:/mcp_servers_config.json
