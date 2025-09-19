@@ -9,8 +9,6 @@ spring:
         version: 0.0.1
         protocol: STREAMABLE
         enabled: true
-        stdio: false
-        type: sync
         resource-change-notification: true
         tool-change-notification: true
         prompt-change-notification: true
@@ -41,5 +39,6 @@ spring:
 
   main:
     banner-mode: off
+    web-application-type: none
 
 logging.pattern.console:
