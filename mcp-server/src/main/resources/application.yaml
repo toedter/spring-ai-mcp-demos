@@ -9,9 +9,6 @@ spring:
         version: 0.0.1
         protocol: STREAMABLE
         enabled: true
-        resource-change-notification: true
-        tool-change-notification: true
-        prompt-change-notification: true
         streamable-http:
           mcp-endpoint: /api/mcp
           keep-alive-interval: 30s
