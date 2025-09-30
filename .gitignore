@@ -36,3 +36,4 @@ out/
 .vscode/
 
 /backup
+/mcp-server.log

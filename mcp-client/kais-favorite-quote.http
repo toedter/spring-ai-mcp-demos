@@ -4,7 +4,7 @@ GET http://localhost:8083/chat?prompt=From which movie is Kai's favorite quote?
 ---
 
 ### Kai's Favorite Quote
-GET http://localhost:8083/chat?prompt=What Kai's favorite quote?
+GET http://localhost:8083/chat?prompt=What is Kai's favorite quote?
 Accept: application/json
 
 ---
