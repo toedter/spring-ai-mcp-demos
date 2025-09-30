@@ -39,3 +39,4 @@ spring:
     web-application-type: none
 
 logging.pattern.console:
+logging.file.name: mcp-server.log

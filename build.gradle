@@ -15,10 +15,4 @@ allprojects {
 	ext {
 		set('springAiVersion', "1.1.0-SNAPSHOT")
 	}
-
-	idea {
-		module {
-			excludeDirs += file('node_modules')
-		}
-	}
 }
