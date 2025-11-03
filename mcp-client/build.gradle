@@ -16,7 +16,7 @@ java {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
-	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

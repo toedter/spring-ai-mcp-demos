@@ -1,15 +1,15 @@
 ### Kai's Favorite Quote Movie
-GET http://localhost:8083/chat?prompt=From which movie is Kai's favorite quote?
+GET http://localhost:8083/chat?message=From which movie is Kai's favorite quote?
+Accept: application/json
 
 ---
 
 ### Kai's Favorite Quote
-GET http://localhost:8083/chat?prompt=What is Kai's favorite quote?
+GET http://localhost:8083/chat?message=What is Kai's favorite quote?
 Accept: application/json
 
 ---
 
 ### Kai's Favorite Quote Batman
-GET http://localhost:8083/chat?prompt=Is Kai's favorite quote from Batman?
-Accept: application/json
+GET http://localhost:8083/chat?message=Is Kai's favorite movie quote from Batman?
 Accept: application/json
