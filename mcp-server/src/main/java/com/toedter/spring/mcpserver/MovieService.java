@@ -44,12 +44,13 @@ public class MovieService {
      * @return The ranked list of movies
      * @throws RestClientException if the request fails
      */
-    @McpTool(name = "top_ranked_imdb_movies", description = """
-            Get the top-ranked movies from IMDb.
-            The API supports pagination using the pageNumber and pageSize parameters.
-            The pageNumber starts at 0.
-            The default pageSize is 10, with a maximum of 250.
-            """)
+    @McpTool(name = "top_ranked_imdb_movies",
+            description = """
+                    Get the top-ranked movies from IMDb.
+                    The API supports pagination using the pageNumber and pageSize parameters.
+                    The pageNumber starts at 0.
+                    The default pageSize is 10, with a maximum of 250.
+                    """)
     public String getTopRankedMovies(int pageNumber, int pageSize) {
 
         return restClient.get()

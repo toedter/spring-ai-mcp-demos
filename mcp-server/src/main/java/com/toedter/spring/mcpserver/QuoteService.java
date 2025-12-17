@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class QuoteService {
-    @McpTool(name = "get_kais_favorite_movie_quote", description = "Get Kai’s favorite movie quote.")
+    @McpTool(name = "get_kais_favorite_movie_quote",
+            description = "Get Kai’s favorite movie quote.")
     public String getKaisFavoriteMovieQuote() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof JwtAuthenticationToken jwtAuth) {
