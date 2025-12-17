@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 - 2024 the original author or authors.
+ * Copyright 2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.toedter.spring.mcpserver;
 
-import org.springframework.ai.tool.annotation.Tool;
+import org.springaicommunity.mcp.annotation.McpTool;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class QuoteService {
-    @Tool(description = "Get Kai’s favorite movie quote.")
+    @McpTool(name = "get_kais_favorite_movie_quote", description = "Get Kai’s favorite movie quote.")
     public String getKaisFavoriteMovieQuote() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof JwtAuthenticationToken jwtAuth) {

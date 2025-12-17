@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 - 2024 the original author or authors.
+ * Copyright 2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.toedter.spring.mcpserver;
 
-import org.springframework.ai.tool.annotation.Tool;
+import org.springaicommunity.mcp.annotation.McpTool;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -44,7 +44,7 @@ public class MovieService {
      * @return The ranked list of movies
      * @throws RestClientException if the request fails
      */
-    @Tool(description = """
+    @McpTool(name = "top_ranked_imdb_movies", description = """
             Get the top-ranked movies from IMDb.
             The API supports pagination using the pageNumber and pageSize parameters.
             The pageNumber starts at 0.

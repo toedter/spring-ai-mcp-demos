@@ -16,7 +16,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class OAuth2ResourceServerSecurityConfiguration {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/**").hasAuthority("SCOPE_mcp.tools")

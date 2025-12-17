@@ -1,5 +1,5 @@
 /*
-* Copyright 2024 - 2024 the original author or authors.
+* Copyright 2025 the original author or authors.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 */
 package com.toedter.spring.mcpserver;
 
-import org.springframework.ai.tool.annotation.Tool;
+import org.springaicommunity.mcp.annotation.McpTool;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -43,7 +43,7 @@ public class WeatherService {
 	 * @return The current weather for the given location
 	 * @throws RestClientException if the request fails
 	 */
-	@Tool(description = """
+	@McpTool(description = """
             Get the current weather forecast for a specific latitude and longitude.
             Units can be 'metric' or 'imperial'; the default is 'metric'.
             """)
