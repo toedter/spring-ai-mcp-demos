@@ -13,6 +13,14 @@ allprojects {
 	}
 
 	ext {
-		set('springAiVersion', "2.0.0-M1")
+		set('springAiVersion', "2.0.0-M2")
+	}
+
+	tasks.withType(JavaExec) {
+		jvmArgs = ['--enable-native-access=ALL-UNNAMED']
+	}
+
+	tasks.withType(Test) {
+		jvmArgs = ['--enable-native-access=ALL-UNNAMED']
 	}
 }
