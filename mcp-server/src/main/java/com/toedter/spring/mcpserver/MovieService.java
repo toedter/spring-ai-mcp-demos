@@ -23,7 +23,7 @@ import org.springframework.web.client.RestClientException;
 @Service
 public class MovieService {
 
-    private static final String BASE_URL = "http://localhost:8080/api";
+    private static final String BASE_URL = "https://nexus.toedter.com/api/jsonapi";
 
     private final RestClient restClient;
 
@@ -32,7 +32,7 @@ public class MovieService {
         this.restClient = RestClient.builder()
                 .baseUrl(BASE_URL)
                 .defaultHeader("Accept", "application/vnd.api+json")
-                .defaultHeader("User-Agent", "WeatherApiClient/1.0 (kai@toedter.com)")
+                .defaultHeader("User-Agent", "DemoMcpServer/1.0 (kai@toedter.com)")
                 .build();
     }
 
