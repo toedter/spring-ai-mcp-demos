@@ -24,7 +24,7 @@ import org.springframework.web.client.RestClientException;
 @Service
 public class WeatherService {
 
-    private static final String BASE_URL = "http://localhost:8081/api";
+    private static final String BASE_URL = "https://api.open-meteo.com/v1/forecast";
 
     private final RestClient restClient;
 
@@ -48,20 +48,19 @@ public class WeatherService {
     @McpTool(name = "get_weather_forecast_by_location",
             description = """
                     Get the current weather forecast for a specific latitude and longitude.
-                    Units can be 'metric' or 'imperial'; the default is 'metric'.
                     """)
-    public String getWeatherForecastByLocation(double latitude, double longitude, String units) {
+    public String getWeatherForecastByLocation(double latitude, double longitude) {
 
         System.out.println(latitude + "," + longitude);
         return restClient.get()
-                .uri("/current?latitude={latitude}&longitude={longitude}&units={units}", latitude, longitude, units)
+                .uri("?latitude={latitude}&longitude={longitude}&current=temperature_2m,weathercode,windspeed_10m,precipitation", latitude, longitude)
                 .retrieve()
                 .body(String.class);
     }
 
     public static void main(String[] args) {
         WeatherService client = new WeatherService();
-        System.out.println(client.getWeatherForecastByLocation(47.6062, -122.3321, "metric"));
+        System.out.println(client.getWeatherForecastByLocation(47.6062, -122.3321));
     }
 
 }
