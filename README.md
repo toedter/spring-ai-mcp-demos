@@ -1,6 +1,6 @@
 # Spring AI MCP Demos
 
-Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x and Spring AI.
+Several MCP demos (like an mcp server) written in Java with Spring Boot 4.0.x and Spring AI.
 
 ## How to run the mcp server
 
@@ -50,18 +50,9 @@ Several MCP demos (like an mcp server) written in Java with Spring Boot 3.5.x an
     - Interact with the MCP server through Claude Desktop’s UI.
     - In Claude Desktop you can ask questions like:
       - `From which movies is Kai's favorite quote?`
-    - To integrate with a movie demo server, follow the steps below.
-
-      - Clone the movie demo repository:
-        ```sh
-        git clone https://github.com/toedter/spring-hateoas-jsonapi.git
-        cd spring-hateoas-jsonapi
-        ./gradlew bootRun
-        ```
-      - The movie demo server will start on `http://localhost:8080`.
-      - In Claude Desktop you can now ask questions like:
-          - `How many movies directed by Quentin Tarantino are in the top 100?`
-          - `Which movies directed by Christopher Nolan are in the top ten?`
+    - In Claude Desktop you can now ask questions like:
+      - `How many movies directed by Quentin Tarantino are in the top 100?`
+      - `Which movies directed by Christopher Nolan are in the top ten?`
   
 ## License
 
