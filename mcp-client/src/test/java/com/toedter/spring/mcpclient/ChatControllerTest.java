@@ -29,7 +29,7 @@ class ChatControllerTest {
         when(chatClient.prompt()).thenReturn(requestSpec);
 
         var builderWithSystem = mock(ChatClient.Builder.class);
-        when(builderWithSystem.defaultToolCallbacks(any(ToolCallbackProvider.class))).thenReturn(builderWithSystem);
+        when(builderWithSystem.defaultTools(any(ToolCallbackProvider.class))).thenReturn(builderWithSystem);
         when(builderWithSystem.build()).thenReturn(chatClient);
 
         chatClientBuilder = mock(ChatClient.Builder.class);
