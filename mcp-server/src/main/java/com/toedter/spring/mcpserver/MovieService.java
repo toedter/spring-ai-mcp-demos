@@ -16,6 +16,7 @@
 package com.toedter.spring.mcpserver;
 
 import org.springframework.ai.mcp.annotation.McpTool;
+import org.springframework.ai.mcp.annotation.McpToolParam;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -44,14 +45,10 @@ public class MovieService {
      * @return The ranked list of movies
      * @throws RestClientException if the request fails
      */
-    @McpTool(name = "top_ranked_imdb_movies",
-            description = """
-                    Get the top-ranked movies from IMDb.
-                    The API supports pagination using the pageNumber and pageSize parameters.
-                    The pageNumber starts at 0.
-                    The default pageSize is 10, with a maximum of 250.
-                    """)
-    public String getTopRankedMovies(int pageNumber, int pageSize) {
+    @McpTool(name = "top_ranked_imdb_movies", description = "Get the top-ranked movies from IMDb.")
+    public String getTopRankedMovies(
+            @McpToolParam(description = "Page number, starting at 0, default is 0", required = false) int pageNumber,
+            @McpToolParam(description = "Page size, default is 10, maximum is 250", required = false) int pageSize) {
 
         return restClient.get()
                 .uri("/movies?page[number]={pageNumber}&page[size]={pageSize}", pageNumber, pageSize)

@@ -17,6 +17,7 @@ package com.toedter.spring.mcpserver;
 
 
 import org.springframework.ai.mcp.annotation.McpTool;
+import org.springframework.ai.mcp.annotation.McpToolParam;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -46,10 +47,10 @@ public class WeatherService {
      * @throws RestClientException if the request fails
      */
     @McpTool(name = "get_weather_forecast_by_location",
-            description = """
-                    Get the current weather forecast for a specific latitude and longitude.
-                    """)
-    public String getWeatherForecastByLocation(double latitude, double longitude) {
+            description = "Get the current weather forecast for a specific location.")
+    public String getWeatherForecastByLocation(
+            @McpToolParam(description = "Latitude of the location", required = false) double latitude,
+            @McpToolParam(description = "Longitude of the location", required = false) double longitude) {
 
         System.out.println(latitude + "," + longitude);
         return restClient.get()
