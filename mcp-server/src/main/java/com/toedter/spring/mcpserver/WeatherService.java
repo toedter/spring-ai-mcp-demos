@@ -49,10 +49,9 @@ public class WeatherService {
     @McpTool(name = "get_weather_forecast_by_location",
             description = "Get the current weather forecast for a specific location.")
     public String getWeatherForecastByLocation(
-            @McpToolParam(description = "Latitude of the location", required = false) double latitude,
-            @McpToolParam(description = "Longitude of the location", required = false) double longitude) {
+            @McpToolParam(description = "Latitude of the location") double latitude,
+            @McpToolParam(description = "Longitude of the location") double longitude) {
 
-        System.out.println(latitude + "," + longitude);
         return restClient.get()
                 .uri("?latitude={latitude}&longitude={longitude}&current=temperature_2m,weathercode,windspeed_10m,precipitation", latitude, longitude)
                 .retrieve()
