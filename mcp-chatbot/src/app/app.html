@@ -2,13 +2,22 @@
   <span class="toolbar-title">🤖 MCP Chatbot</span>
   <span class="spacer"></span>
   @if (auth.loggedIn()) {
-    <div class="user-box">
-      <div class="avatar">{{ initials() }}</div>
-      <div class="user-text">
-        <span class="user-name">{{ auth.user()?.name }}</span>
-        <span class="user-email">{{ auth.user()?.email }}</span>
-      </div>
-      <button class="btn" (click)="logout()">Logout</button>
+    <div class="user-menu">
+      <button class="avatar-btn" (click)="toggleMenu($event)" title="Account">
+        <span class="avatar">{{ initials() }}</span>
+      </button>
+      @if (menuOpen()) {
+        <div class="menu" (click)="$event.stopPropagation()">
+          <div class="menu-info">
+            <span class="menu-name">{{ auth.user()?.name }}</span>
+            <span class="menu-email">{{ auth.user()?.email }}</span>
+          </div>
+          <div class="menu-separator"></div>
+          <button class="menu-action" (click)="logout()">
+            <span class="menu-action-icon">⎋</span> Logout
+          </button>
+        </div>
+      }
     </div>
   } @else {
     <button class="btn" (click)="login()">Login</button>

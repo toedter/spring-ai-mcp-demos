@@ -28,10 +28,18 @@
 .spacer {
   flex-grow: 1;
 }
-.user-box {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+.user-menu {
+  position: relative;
+}
+.avatar-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.avatar-btn:hover .avatar {
+  background-color: var(--brand-dark);
 }
 .avatar {
   width: 2.25rem;
@@ -44,20 +52,59 @@
   align-items: center;
   font-size: 0.9rem;
   font-weight: 600;
+  transition: background 0.2s ease;
 }
-.user-text {
+.menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 15rem;
+  background-color: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  padding: 0.35rem 0;
+  z-index: 100;
+}
+.menu-info {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  padding: 0.6rem 1rem;
 }
-.user-name {
-  font-size: 0.875rem;
+.menu-name {
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--gray-900);
 }
-.user-email {
-  font-size: 0.75rem;
+.menu-email {
+  font-size: 0.8rem;
   color: var(--gray-500);
+  margin-top: 0.1rem;
+}
+.menu-separator {
+  height: 1px;
+  background-color: var(--border);
+  margin: 0.35rem 0;
+}
+.menu-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+  color: var(--gray-900);
+  cursor: pointer;
+}
+.menu-action:hover {
+  background-color: #f2f4f8;
+}
+.menu-action-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 .btn {
   padding: 0.4rem 0.9rem;

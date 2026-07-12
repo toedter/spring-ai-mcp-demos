@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -45,7 +46,11 @@ public class AuthorizationServerApplication {
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
         return context -> {
-            context.getClaims().audience(Collections.singletonList("mcp-audience"));
+            // Only the resource-server access token should carry the MCP audience.
+            // The ID token must keep the client-id audience so the SPA can validate it.
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
+                context.getClaims().audience(Collections.singletonList("mcp-audience"));
+            }
 
             // Enrich the OIDC ID token with profile claims so the SPA can show the user.
             if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
