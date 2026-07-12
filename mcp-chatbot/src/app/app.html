@@ -57,6 +57,26 @@
         [auxiliaryStyle]="auxiliaryStyle()"
         [style]="chatStyle()">
       </deep-chat>
+
+      @if (pendingApproval(); as approval) {
+        <div class="approval-overlay">
+          <div class="approval-dialog">
+            <h2 class="approval-title">🔐 Tool permission required</h2>
+            <p class="approval-text">
+              The assistant wants to run the tool
+              <code class="approval-tool">{{ approval.tool }}</code>.
+            </p>
+            @if (approval.description) {
+              <p class="approval-desc">{{ approval.description }}</p>
+            }
+            <pre class="approval-args">{{ prettyArgs() }}</pre>
+            <div class="approval-actions">
+              <button class="btn" (click)="denyTool()">Deny</button>
+              <button class="btn primary" (click)="approveTool()">Approve &amp; run</button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   } @else {
     <section class="login-hint">

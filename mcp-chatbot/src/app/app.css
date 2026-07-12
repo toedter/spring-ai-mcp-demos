@@ -163,6 +163,7 @@
   background-color: var(--surface);
   overflow: hidden;
   box-shadow: 0 2px 12px var(--shadow);
+  position: relative;
 }
 deep-chat.chat {
   display: block;
@@ -204,3 +205,77 @@ deep-chat.chat {
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
 }
+
+/* ----- Tool approval dialog ----- */
+.approval-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  padding: 1.5rem;
+}
+.approval-dialog {
+  width: 100%;
+  max-width: 28rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px var(--shadow);
+  padding: 1.5rem;
+}
+.approval-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+.approval-text {
+  margin: 0 0 0.5rem;
+  color: var(--text);
+}
+.approval-tool {
+  background-color: var(--code-bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.approval-desc {
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.approval-args {
+  max-height: 12rem;
+  overflow: auto;
+  margin: 0 0 1.25rem;
+  padding: 0.75rem;
+  background-color: var(--code-bg);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.approval-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+.approval-actions .btn {
+  background-color: var(--surface-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.approval-actions .btn:hover {
+  background-color: var(--border);
+}
+.approval-actions .btn.primary {
+  background-color: var(--brand);
+  color: #fff;
+  border: none;
+}
+.approval-actions .btn.primary:hover {
+  background-color: var(--brand-dark);
+}
+

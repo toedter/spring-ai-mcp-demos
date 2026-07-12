@@ -8,7 +8,35 @@ import {
 } from '@angular/core';
 import { AuthService } from './auth.service';
 import { ThemeService, Theme } from './theme.service';
-import { MCP_CHAT_URL } from './config';
+import { MCP_CHAT_URL, MCP_APPROVE_URL } from './config';
+
+interface PendingApproval {
+  id: string;
+  tool: string;
+  description: string;
+  arguments: string;
+}
+
+/**
+ * Subset of the deep-chat custom-handler "signals" API that we drive manually
+ * so we can stream chunks and surface tool-approval prompts.
+ */
+interface DeepChatSignals {
+  onOpen: () => void;
+  onClose: () => void;
+  onResponse: (response: { text?: string; error?: string }) => void;
+}
+
+/** A single event pushed by the mcp-client streaming endpoint. */
+interface StreamEvent {
+  type: 'chunk' | 'status' | 'approval' | 'error';
+  text?: string;
+  message?: string;
+  id?: string;
+  tool?: string;
+  description?: string;
+  arguments?: string;
+}
 
 @Component({
   selector: 'app-root',
@@ -26,14 +54,31 @@ export class App {
   /** Whether the theme dropdown menu is open. */
   protected readonly themeMenuOpen = signal(false);
 
-  /** deep-chat connection config, including the bearer token from the login. */
-  protected readonly connectConfig = computed(() => ({
-    url: MCP_CHAT_URL,
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${this.auth.accessToken()}`,
-    },
-  }));
+  /** The tool call currently awaiting the user's approval (or null). */
+  protected readonly pendingApproval = signal<PendingApproval | null>(null);
+
+  /** Pretty-printed arguments for the approval dialog. */
+  protected readonly prettyArgs = computed(() => {
+    const args = this.pendingApproval()?.arguments;
+    if (!args) {
+      return '';
+    }
+    try {
+      return JSON.stringify(JSON.parse(args), null, 2);
+    } catch {
+      return args;
+    }
+  });
+
+  /**
+   * deep-chat connection: a custom handler that drives the SSE stream so we can
+   * intercept tool-approval events and show a confirmation dialog.
+   */
+  protected readonly connectConfig = computed(() => {
+    // Depend on the token so the config refreshes after login.
+    this.auth.accessToken();
+    return { handler: (body: unknown, signals: DeepChatSignals) => this.handleChat(body, signals) };
+  });
 
   protected readonly introMessage = {
     text: 'Hi! I am your MCP assistant. Ask me anything and I will use the available tools when needed.',
@@ -142,5 +187,134 @@ export class App {
   logout(): void {
     this.menuOpen.set(false);
     this.auth.logout();
+  }
+
+  // ----- Chat streaming + tool approval -----
+
+  /**
+   * deep-chat custom handler: POST the conversation to the mcp-client streaming
+   * endpoint and read the Server-Sent-Events response. Each event is a JSON
+   * object; tool-approval events pop up the confirmation dialog while chunk and
+   * status events are appended to the streamed message.
+   */
+  private async handleChat(body: unknown, signals: DeepChatSignals): Promise<void> {
+    try {
+      signals.onOpen();
+
+      const token = this.auth.accessToken();
+      const response = await fetch(MCP_CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok || !response.body) {
+        signals.onResponse({ error: `Request failed (${response.status})` });
+        signals.onClose();
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          break;
+        }
+        buffer += decoder.decode(value, { stream: true });
+
+        // SSE frames are separated by a blank line.
+        const frames = buffer.split('\n\n');
+        buffer = frames.pop() ?? '';
+        for (const frame of frames) {
+          this.dispatchFrame(frame, signals);
+        }
+      }
+
+      // Flush any trailing frame left in the buffer.
+      if (buffer.trim()) {
+        this.dispatchFrame(buffer, signals);
+      }
+
+      signals.onClose();
+    } catch (error) {
+      signals.onResponse({ error: error instanceof Error ? error.message : String(error) });
+      signals.onClose();
+    }
+  }
+
+  /** Parse a single SSE frame ("data: {json}") and act on its event type. */
+  private dispatchFrame(frame: string, signals: DeepChatSignals): void {
+    const dataLine = frame
+      .split('\n')
+      .map((line) => line.trim())
+      .find((line) => line.startsWith('data:'));
+    if (!dataLine) {
+      return;
+    }
+    const json = dataLine.slice('data:'.length).trim();
+    if (!json) {
+      return;
+    }
+
+    let evt: StreamEvent;
+    try {
+      evt = JSON.parse(json) as StreamEvent;
+    } catch {
+      return;
+    }
+
+    switch (evt.type) {
+      case 'chunk':
+      case 'status':
+        if (evt.text) {
+          signals.onResponse({ text: evt.text });
+        }
+        break;
+      case 'approval':
+        this.pendingApproval.set({
+          id: evt.id ?? '',
+          tool: evt.tool ?? 'unknown tool',
+          description: evt.description ?? '',
+          arguments: evt.arguments ?? '{}',
+        });
+        break;
+      case 'error':
+        signals.onResponse({ error: evt.message ?? 'Unexpected error' });
+        break;
+    }
+  }
+
+  /** User approved the pending tool call. */
+  approveTool(): void {
+    this.resolveApproval(true);
+  }
+
+  /** User denied the pending tool call. */
+  denyTool(): void {
+    this.resolveApproval(false);
+  }
+
+  private resolveApproval(approved: boolean): void {
+    const pending = this.pendingApproval();
+    if (!pending) {
+      return;
+    }
+    this.pendingApproval.set(null);
+
+    const token = this.auth.accessToken();
+    fetch(MCP_APPROVE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ id: pending.id, approved }),
+    }).catch((error) => console.error('Failed to submit approval decision', error));
   }
 }
