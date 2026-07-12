@@ -1,5 +1,6 @@
 package com.toedter.spring.mcpclient;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
@@ -29,22 +30,22 @@ public class ApprovalToolCallback implements ToolCallback {
     }
 
     @Override
-    public ToolDefinition getToolDefinition() {
+    public @NonNull ToolDefinition getToolDefinition() {
         return delegate.getToolDefinition();
     }
 
     @Override
-    public ToolMetadata getToolMetadata() {
+    public @NonNull ToolMetadata getToolMetadata() {
         return delegate.getToolMetadata();
     }
 
     @Override
-    public String call(String toolInput) {
+    public @NonNull String call(@NonNull String toolInput) {
         return call(toolInput, null);
     }
 
     @Override
-    public String call(String toolInput, ToolContext toolContext) {
+    public @NonNull String call(@NonNull String toolInput, ToolContext toolContext) {
         StreamSession session = ToolApprovalContext.current();
 
         // No interactive stream (e.g. the non-streaming endpoints): run directly.
