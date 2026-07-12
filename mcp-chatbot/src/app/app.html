@@ -1,0 +1,33 @@
+﻿<header class="toolbar">
+  <span class="toolbar-title">🤖 MCP Chatbot</span>
+  <span class="spacer"></span>
+  @if (auth.loggedIn()) {
+    <div class="user-box">
+      <div class="avatar">{{ initials() }}</div>
+      <div class="user-text">
+        <span class="user-name">{{ auth.user()?.name }}</span>
+        <span class="user-email">{{ auth.user()?.email }}</span>
+      </div>
+      <button class="btn" (click)="logout()">Logout</button>
+    </div>
+  } @else {
+    <button class="btn" (click)="login()">Login</button>
+  }
+</header>
+<main class="content">
+  @if (auth.loggedIn()) {
+    <deep-chat
+      class="chat"
+      [connect]="connectConfig()"
+      [introMessage]="introMessage"
+      [textInput]="textInput">
+    </deep-chat>
+  } @else {
+    <section class="login-hint">
+      <h1>Welcome to the MCP Chatbot</h1>
+      <p>Please sign in to connect to the MCP client and start chatting.</p>
+      <button class="btn primary" (click)="login()">Sign in</button>
+      <p class="hint">Demo user: <code>john&#64;doe.com</code> / <code>john</code></p>
+    </section>
+  }
+</main>

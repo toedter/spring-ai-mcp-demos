@@ -26,3 +26,23 @@ spring:
                 - "profile"
                 - "mcp.tools"
             require-authorization-consent: true
+          mcp-chatbot-client:
+            registration:
+              client-id: "mcp-chatbot-client"
+              # Public SPA client: no secret, uses Authorization Code + PKCE
+              client-authentication-methods:
+                - "none"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              redirect-uris:
+                - "http://localhost:4200"
+                - "http://localhost:4200/index.html"
+              post-logout-redirect-uris:
+                - "http://localhost:4200"
+              scopes:
+                - "openid"
+                - "profile"
+                - "mcp.tools"
+            require-authorization-consent: false
+            require-proof-key: true

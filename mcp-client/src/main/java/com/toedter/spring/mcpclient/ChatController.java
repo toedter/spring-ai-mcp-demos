@@ -3,8 +3,13 @@ package com.toedter.spring.mcpclient;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -35,5 +40,40 @@ public class ChatController {
 //                        .build())
                 .call()
                 .content();
+    }
+
+    /**
+     * Endpoint consumed by the deep-chat web component in the Angular chatbot.
+     * deep-chat sends {@code {"messages":[{"role":"user","text":"..."}]}} and
+     * expects a {@code {"text":"..."}} response.
+     */
+    @PostMapping("/api/chat")
+    public Map<String, String> apiChat(@RequestBody DeepChatRequest request) {
+        String message = request.lastUserMessage();
+        if (message == null || message.isBlank()) {
+            return Map.of("text", "Please provide a message.");
+        }
+
+        System.out.println("Chatting with prompt: " + message);
+        String answer = this.chatClient
+                .prompt()
+                .user(message)
+                .call()
+                .content();
+
+        return Map.of("text", answer);
+    }
+
+    /** Request payload sent by the deep-chat component. */
+    public record DeepChatRequest(List<Message> messages) {
+        String lastUserMessage() {
+            if (messages == null || messages.isEmpty()) {
+                return null;
+            }
+            return messages.get(messages.size() - 1).text();
+        }
+    }
+
+    public record Message(String role, String text) {
     }
 }
