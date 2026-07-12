@@ -13,7 +13,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @Profile("!stdio")
-public class OAuth2ResourceServerSecurityConfiguration {
+public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
