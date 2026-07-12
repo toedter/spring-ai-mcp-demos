@@ -1,7 +1,49 @@
-/* You can add global styles to this file, and also import other style files */
+﻿/* You can add global styles to this file, and also import other style files */
 html,
 body {
   margin: 0;
   padding: 0;
   height: 100%;
+}
+/* ---- Theme colour tokens ---- */
+:root,
+:root[data-theme="light"] {
+  --brand: #3b5bdb;
+  --brand-dark: #2f49af;
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-hover: #f2f4f8;
+  --text: #1f2430;
+  --text-muted: #6b7280;
+  --border: #e0e0e0;
+  --code-bg: #eef0f5;
+  --shadow: rgba(0, 0, 0, 0.12);
+}
+:root[data-theme="dark"] {
+  --brand: #5b78e6;
+  --brand-dark: #4560c9;
+  --bg: #16181d;
+  --surface: #24262e;
+  --surface-hover: #2f323c;
+  --text: #e8eaed;
+  --text-muted: #9aa0aa;
+  --border: #3a3d46;
+  --code-bg: #2f323c;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+/* "auto" follows the operating system preference */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"],
+  :root:not([data-theme]) {
+    --brand: #5b78e6;
+    --brand-dark: #4560c9;
+    --bg: #16181d;
+    --surface: #24262e;
+    --surface-hover: #2f323c;
+    --text: #e8eaed;
+    --text-muted: #9aa0aa;
+    --border: #3a3d46;
+    --code-bg: #2f323c;
+    --shadow: rgba(0, 0, 0, 0.5);
+  }
 }

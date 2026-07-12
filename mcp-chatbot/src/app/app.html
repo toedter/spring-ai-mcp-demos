@@ -1,6 +1,26 @@
 ﻿<header class="toolbar">
   <span class="toolbar-title">🤖 MCP Chatbot</span>
   <span class="spacer"></span>
+  <!-- Theme switcher (light / dark / auto) -->
+  <div class="theme-menu">
+    <button class="icon-btn" (click)="toggleThemeMenu($event)" title="Theme">🌓</button>
+    @if (themeMenuOpen()) {
+      <div class="menu" (click)="$event.stopPropagation()">
+        <button class="menu-action" [class.active]="theme.theme() === 'light'" (click)="setTheme('light')">
+          <span class="menu-action-icon">☀️</span> Light
+          @if (theme.theme() === 'light') { <span class="check">✓</span> }
+        </button>
+        <button class="menu-action" [class.active]="theme.theme() === 'dark'" (click)="setTheme('dark')">
+          <span class="menu-action-icon">🌙</span> Dark
+          @if (theme.theme() === 'dark') { <span class="check">✓</span> }
+        </button>
+        <button class="menu-action" [class.active]="theme.theme() === 'auto'" (click)="setTheme('auto')">
+          <span class="menu-action-icon">🖥️</span> Auto
+          @if (theme.theme() === 'auto') { <span class="check">✓</span> }
+        </button>
+      </div>
+    }
+  </div>
   @if (auth.loggedIn()) {
     <div class="user-menu">
       <button class="avatar-btn" (click)="toggleMenu($event)" title="Account">
@@ -31,8 +51,11 @@
         [connect]="connectConfig()"
         [stream]="true"
         [introMessage]="introMessage"
-        [textInput]="textInput"
-        style="width: 100%; height: 100%; border: none; border-radius: 0; background-color: #fff;">
+        [textInput]="textInput()"
+        [messageStyles]="messageStyles()"
+        [submitButtonStyles]="submitButtonStyles()"
+        [auxiliaryStyle]="auxiliaryStyle()"
+        [style]="chatStyle()">
       </deep-chat>
     </div>
   } @else {

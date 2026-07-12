@@ -1,33 +1,52 @@
 ﻿:host {
-  --brand: #3b5bdb;
-  --brand-dark: #2f49af;
-  --gray-900: #1f2430;
-  --gray-700: #4b5563;
-  --gray-500: #6b7280;
-  --border: #e0e0e0;
+  /* Map legacy names onto the shared theme tokens (see styles.css). */
+  --gray-900: var(--text);
+  --gray-700: var(--text-muted);
+  --gray-500: var(--text-muted);
   display: flex;
   flex-direction: column;
   height: 100dvh;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
-  background-color: #f5f6f8;
+  background-color: var(--bg);
+  color: var(--text);
 }
 .toolbar {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #fff;
+  background-color: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 .toolbar-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--gray-900);
+  color: var(--text);
 }
 .spacer {
   flex-grow: 1;
 }
+/* Generic icon button (theme switcher). */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.icon-btn:hover {
+  background-color: var(--surface-hover);
+}
+.theme-menu,
 .user-menu {
   position: relative;
 }
@@ -58,11 +77,11 @@
   position: absolute;
   top: calc(100% + 0.5rem);
   right: 0;
-  min-width: 15rem;
-  background-color: #fff;
+  min-width: 12rem;
+  background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 20px var(--shadow);
   padding: 0.35rem 0;
   z-index: 100;
 }
@@ -74,11 +93,11 @@
 .menu-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--gray-900);
+  color: var(--text);
 }
 .menu-email {
   font-size: 0.8rem;
-  color: var(--gray-500);
+  color: var(--text-muted);
   margin-top: 0.1rem;
 }
 .menu-separator {
@@ -96,15 +115,23 @@
   text-align: left;
   padding: 0.6rem 1rem;
   font-size: 0.875rem;
-  color: var(--gray-900);
+  color: var(--text);
   cursor: pointer;
 }
 .menu-action:hover {
-  background-color: #f2f4f8;
+  background-color: var(--surface-hover);
+}
+.menu-action.active {
+  font-weight: 600;
+  color: var(--brand);
 }
 .menu-action-icon {
   font-size: 1rem;
   line-height: 1;
+}
+.menu-action .check {
+  margin-left: auto;
+  color: var(--brand);
 }
 .btn {
   padding: 0.4rem 0.9rem;
@@ -133,31 +160,35 @@
   height: 100%;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background-color: #fff;
+  background-color: var(--surface);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px var(--shadow);
 }
 deep-chat.chat {
   display: block;
   width: 100%;
   height: 100%;
+  /* deep-chat applies a default 1px host border (per-side longhands) that shows
+     as a light/dark line inside our rounded frame; force it off. */
+  border: none !important;
+  border-radius: 0 !important;
 }
 .login-hint {
   text-align: center;
   padding: 2.5rem;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: var(--surface);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 .login-hint h1 {
   font-size: 1.5rem;
   margin: 0 0 0.75rem;
-  color: var(--gray-900);
+  color: var(--text);
 }
 .login-hint p {
   margin: 0 0 1.25rem;
-  color: var(--gray-700);
+  color: var(--text-muted);
 }
 .btn.primary {
   padding: 0.6rem 1.4rem;
@@ -165,11 +196,11 @@ deep-chat.chat {
 }
 .hint {
   font-size: 0.8rem;
-  color: var(--gray-500);
+  color: var(--text-muted);
   margin-top: 1rem !important;
 }
 .hint code {
-  background-color: #eef0f5;
+  background-color: var(--code-bg);
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
 }
