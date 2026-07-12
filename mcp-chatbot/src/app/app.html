@@ -16,12 +16,15 @@
 </header>
 <main class="content">
   @if (auth.loggedIn()) {
-    <deep-chat
-      class="chat"
-      [connect]="connectConfig()"
-      [introMessage]="introMessage"
-      [textInput]="textInput">
-    </deep-chat>
+    <div class="chat-wrap">
+      <deep-chat
+        class="chat"
+        [connect]="connectConfig()"
+        [introMessage]="introMessage"
+        [textInput]="textInput"
+        style="width: 100%; height: 100%; border: none; border-radius: 0; background-color: #fff;">
+      </deep-chat>
+    </div>
   } @else {
     <section class="login-hint">
       <h1>Welcome to the MCP Chatbot</h1>

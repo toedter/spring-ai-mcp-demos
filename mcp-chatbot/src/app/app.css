@@ -78,16 +78,22 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 1.5rem;
   overflow: hidden;
 }
-deep-chat.chat {
-  width: 100%;
-  max-width: 900px;
+.chat-wrap {
+  width: 50vw;
   height: 100%;
   border-radius: 12px;
   border: 1px solid var(--border);
   background-color: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+deep-chat.chat {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .login-hint {
   text-align: center;
