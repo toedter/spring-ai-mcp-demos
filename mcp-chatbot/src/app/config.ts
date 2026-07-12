@@ -1,7 +1,7 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
 
-/** URL of the mcp-client deep-chat endpoint. */
-export const MCP_CHAT_URL = 'http://localhost:8083/api/chat';
+/** URL of the mcp-client deep-chat streaming (Server-Sent Events) endpoint. */
+export const MCP_CHAT_URL = 'http://localhost:8083/api/chat/stream';
 
 /** OpenID Connect configuration pointing at the mcp-authorization-server. */
 export const authConfig: AuthConfig = {
