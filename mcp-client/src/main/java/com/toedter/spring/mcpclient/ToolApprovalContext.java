@@ -3,7 +3,7 @@ package com.toedter.spring.mcpclient;
 /**
  * Holds the {@link StreamSession} for the current worker thread so the
  * tool-approval callback can reach the active SSE stream. It is set by the
- * streaming chat endpoint before invoking the model and cleared afterwards.
+ * streaming chat endpoint before invoking the model and cleared afterward.
  */
 public final class ToolApprovalContext {
 

@@ -16,9 +16,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfiguration {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
+                        // Let CORS preflight requests through without authentication.
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/**").hasAuthority("SCOPE_mcp.tools")
                         .requestMatchers(HttpMethod.POST, "/**").hasAuthority("SCOPE_mcp.tools")
                         .anyRequest().authenticated()

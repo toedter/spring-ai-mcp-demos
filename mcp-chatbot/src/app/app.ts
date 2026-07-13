@@ -77,7 +77,10 @@ export class App {
   protected readonly connectConfig = computed(() => {
     // Depend on the token so the config refreshes after login.
     this.auth.accessToken();
-    return { handler: (body: unknown, signals: DeepChatSignals) => this.handleChat(body, signals) };
+    return {
+      handler: (body: unknown, signals: DeepChatSignals) => this.handleChat(body, signals),
+      stream: true,
+    };
   });
 
   protected readonly introMessage = {

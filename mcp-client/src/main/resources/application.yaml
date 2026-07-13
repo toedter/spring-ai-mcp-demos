@@ -1,5 +1,16 @@
 server.port: 8083
 
+# Client-credentials token used to authenticate MCP transport traffic that has
+# no associated end user (keep-alive pings, reconnects, ...). Uses the same
+# mcp-auth-client client-credentials registration as mcp-authorization-server's
+# get-access-token.bat. See McpServiceTokenProvider.
+mcp:
+  service-token:
+    token-uri: http://localhost:9000/oauth2/token
+    client-id: mcp-auth-client
+    client-secret: secret
+    scope: mcp.tools
+
 spring:
   security:
     oauth2:
@@ -12,11 +23,18 @@ spring:
   ai:
     mcp:
       client:
+        streamable-http:
+          connections:
+            weather-x-mcp-server:
+              url: http://localhost:8082
+              endpoint: /api/mcp
+              keep-alive-interval: 50s
+
         name: demo-mcp-client
         version: 0.0.1
         type: SYNC
-        stdio:
-          servers-configuration: classpath:mcp_servers_config.json
+#        stdio:
+#          servers-configuration: classpath:mcp_servers_config.json
 
 #    ollama:
 #      base-url: http://localhost:11434
