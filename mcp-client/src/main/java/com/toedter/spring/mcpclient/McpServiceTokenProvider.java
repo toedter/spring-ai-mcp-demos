@@ -15,7 +15,7 @@ import org.springframework.web.client.RestClient;
  * callTool, keep-alive pings, ...) against the mcp-server, which is secured
  * as an OAuth2 resource server requiring the {@code mcp.tools} scope.
  * <p>
- * Uses the same {@code mcp-auth-client} client-credentials registration as
+ * Uses the same {@code mcp-client-client} client-credentials registration as
  * {@code mcp-authorization-server/get-access-token.http}.
  */
 @Component

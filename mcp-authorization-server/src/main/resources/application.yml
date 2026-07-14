@@ -15,8 +15,8 @@ spring:
         client:
           mcp-client:
             registration:
-              client-id: "mcp-auth-client"
-              client-secret: "{noop}secret"
+              client-id: "mcp-client-client"
+              client-secret: "{noop}mcp-client-secret"
               client-authentication-methods:
                 - "client_secret_post"
               authorization-grant-types:

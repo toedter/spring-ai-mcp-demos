@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Verifies the RFC 8693 OAuth 2.0 Token Exchange grant configured for
- * mcp-auth-client: exchanging a (simulated) end-user access token together
+ * mcp-client-client: exchanging a (simulated) end-user access token together
  * with mcp-client's own client-credentials access token yields a new access
  * token that keeps the original user's {@code sub} claim while adding
  * mcp-client as the {@code act} (actor) claim.
@@ -66,12 +66,12 @@ class TokenExchangeIntegrationTest {
 
         // ----- 2. Get mcp-client's own client-credentials access token
         // (the "actor" in the delegation). -----
-        String actorToken = getAccessToken(tokenUri, "mcp-auth-client", "secret", "mcp.tools");
+        String actorToken = getAccessToken(tokenUri, "mcp-client-client", "mcp-client-secret", "mcp.tools");
         assertThat(actorToken).isNotBlank();
 
         // ----- 3. Exchange the user's (subject) token, using mcp-client's own
         // token as the actor token. -----
-        String exchangedAccessToken = exchangeToken(tokenUri, subjectTokenValue, actorToken, "mcp-auth-client", "secret");
+        String exchangedAccessToken = exchangeToken(tokenUri, subjectTokenValue, actorToken, "mcp-client-client", "mcp-client-secret");
         assertThat(exchangedAccessToken).isNotBlank();
 
         // ----- 4. Decode the exchanged JWT's claims and assert the
@@ -79,7 +79,7 @@ class TokenExchangeIntegrationTest {
         JsonNode claims = decodeJwtClaims(exchangedAccessToken);
         assertThat(claims.get("sub").asString()).isEqualTo("john@doe.com");
         assertThat(claims.has("act")).isTrue();
-        assertThat(claims.get("act").get("sub").asString()).isEqualTo("mcp-auth-client");
+        assertThat(claims.get("act").get("sub").asString()).isEqualTo("mcp-client-client");
     }
 
     @Test
@@ -91,11 +91,11 @@ class TokenExchangeIntegrationTest {
         saveUserAuthorization("john@doe.com", subjectTokenValue);
 
         // ----- 2. mcp-client exchanges the user's token for a delegated
-        // token (sub=user, act.sub=mcp-auth-client), exactly as
+        // token (sub=user, act.sub=mcp-client-client), exactly as
         // TokenExchangeService does in mcp-client. -----
-        String mcpClientActorToken = getAccessToken(tokenUri, "mcp-auth-client", "secret", "mcp.tools");
+        String mcpClientActorToken = getAccessToken(tokenUri, "mcp-client-client", "mcp-client-secret", "mcp.tools");
         String mcpClientDelegatedToken = exchangeToken(tokenUri, subjectTokenValue, mcpClientActorToken,
-                "mcp-auth-client", "secret");
+                "mcp-client-client", "mcp-client-secret");
 
         // ----- 3. mcp-server exchanges that already-delegated token again,
         // adding itself as a second actor, exactly as TokenService does in
@@ -113,7 +113,7 @@ class TokenExchangeIntegrationTest {
         JsonNode act = claims.get("act");
         assertThat(act.get("sub").asString()).isEqualTo("mcp-server-client");
         assertThat(act.has("act")).isTrue();
-        assertThat(act.get("act").get("sub").asString()).isEqualTo("mcp-auth-client");
+        assertThat(act.get("act").get("sub").asString()).isEqualTo("mcp-client-client");
     }
 
     private void saveUserAuthorization(String username, String tokenValue) {

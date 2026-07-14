@@ -2,13 +2,13 @@ server.port: 8083
 
 # Client-credentials token used to authenticate MCP transport traffic that has
 # no associated end user (keep-alive pings, reconnects, ...). Uses the same
-# mcp-auth-client client-credentials registration as mcp-authorization-server's
+# mcp-client-client client-credentials registration as mcp-authorization-server's
 # get-access-token.bat. See McpServiceTokenProvider.
 mcp:
   service-token:
     token-uri: http://localhost:9000/oauth2/token
-    client-id: mcp-auth-client
-    client-secret: secret
+    client-id: mcp-client-client
+    client-secret: mcp-client-secret
     scope: mcp.tools
 
 spring:

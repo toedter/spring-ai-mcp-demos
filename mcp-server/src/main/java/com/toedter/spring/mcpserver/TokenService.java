@@ -44,7 +44,7 @@ import tools.jackson.databind.json.JsonMapper;
  *   "sub": "john@doe.com",
  *   "act": {
  *     "sub": "mcp-server-client",
- *     "act": { "sub": "mcp-auth-client" }
+ *     "act": { "sub": "mcp-client-client" }
  *   }
  * }
  * </pre>

@@ -71,7 +71,7 @@ public class AuthorizationServerApplication {
 
                 // RFC 8693 Token Exchange (delegation use case): stamp the
                 // "act" (actor) claim onto the exchanged token, e.g.
-                // { "sub": "john@doe.com", "act": { "sub": "mcp-auth-client" } }
+                // { "sub": "john@doe.com", "act": { "sub": "mcp-client-client" } }
                 // so downstream resource servers (mcp-server) can see both who
                 // the request is acting on behalf of ("sub") and who is
                 // actually making the call ("act").
