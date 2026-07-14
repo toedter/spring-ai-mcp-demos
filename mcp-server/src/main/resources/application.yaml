@@ -1,6 +1,16 @@
 server:
   port: 8082
 
+# Client-credentials token used by TokenService as the "actor_token" when
+# exchanging an incoming (already delegated) access token to add mcp-server
+# as an additional actor. Reuses the mcp-server-client registration.
+mcp:
+  service-token:
+    token-uri: http://localhost:9000/oauth2/token
+    client-id: mcp-server-client
+    client-secret: mcp-server-secret
+    scope: mcp.tools
+
 spring:
   ai:
     mcp:

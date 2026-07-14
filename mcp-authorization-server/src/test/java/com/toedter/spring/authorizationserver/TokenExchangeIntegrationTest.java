@@ -66,41 +66,12 @@ class TokenExchangeIntegrationTest {
 
         // ----- 2. Get mcp-client's own client-credentials access token
         // (the "actor" in the delegation). -----
-        MultiValueMap<String, String> clientCredentialsForm = new LinkedMultiValueMap<>();
-        clientCredentialsForm.add("grant_type", "client_credentials");
-        clientCredentialsForm.add("client_id", "mcp-auth-client");
-        clientCredentialsForm.add("client_secret", "secret");
-        clientCredentialsForm.add("scope", "mcp.tools");
-
-        Map<String, Object> clientCredentialsResponse = restClient.post()
-                .uri(tokenUri)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(clientCredentialsForm)
-                .retrieve()
-                .body(Map.class);
-        assertThat(clientCredentialsResponse).isNotNull();
-        String actorToken = (String) clientCredentialsResponse.get("access_token");
+        String actorToken = getAccessToken(tokenUri, "mcp-auth-client", "secret", "mcp.tools");
         assertThat(actorToken).isNotBlank();
 
         // ----- 3. Exchange the user's (subject) token, using mcp-client's own
         // token as the actor token. -----
-        MultiValueMap<String, String> tokenExchangeForm = new LinkedMultiValueMap<>();
-        tokenExchangeForm.add("grant_type", TOKEN_EXCHANGE_GRANT_TYPE);
-        tokenExchangeForm.add("subject_token", subjectTokenValue);
-        tokenExchangeForm.add("subject_token_type", ACCESS_TOKEN_TYPE);
-        tokenExchangeForm.add("actor_token", actorToken);
-        tokenExchangeForm.add("actor_token_type", ACCESS_TOKEN_TYPE);
-        tokenExchangeForm.add("client_id", "mcp-auth-client");
-        tokenExchangeForm.add("client_secret", "secret");
-
-        Map<String, Object> exchangeResponse = restClient.post()
-                .uri(tokenUri)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(tokenExchangeForm)
-                .retrieve()
-                .body(Map.class);
-        assertThat(exchangeResponse).isNotNull();
-        String exchangedAccessToken = (String) exchangeResponse.get("access_token");
+        String exchangedAccessToken = exchangeToken(tokenUri, subjectTokenValue, actorToken, "mcp-auth-client", "secret");
         assertThat(exchangedAccessToken).isNotBlank();
 
         // ----- 4. Decode the exchanged JWT's claims and assert the
@@ -109,6 +80,40 @@ class TokenExchangeIntegrationTest {
         assertThat(claims.get("sub").asString()).isEqualTo("john@doe.com");
         assertThat(claims.has("act")).isTrue();
         assertThat(claims.get("act").get("sub").asString()).isEqualTo("mcp-auth-client");
+    }
+
+    @Test
+    void tokenExchangeChainsMcpServerAsSecondActorOnTopOfMcpClient() {
+        String tokenUri = "http://localhost:" + port + "/oauth2/token";
+
+        // ----- 1. Simulate a signed-in end user (as above). -----
+        String subjectTokenValue = "test-subject-token-" + System.currentTimeMillis();
+        saveUserAuthorization("john@doe.com", subjectTokenValue);
+
+        // ----- 2. mcp-client exchanges the user's token for a delegated
+        // token (sub=user, act.sub=mcp-auth-client), exactly as
+        // TokenExchangeService does in mcp-client. -----
+        String mcpClientActorToken = getAccessToken(tokenUri, "mcp-auth-client", "secret", "mcp.tools");
+        String mcpClientDelegatedToken = exchangeToken(tokenUri, subjectTokenValue, mcpClientActorToken,
+                "mcp-auth-client", "secret");
+
+        // ----- 3. mcp-server exchanges that already-delegated token again,
+        // adding itself as a second actor, exactly as TokenService does in
+        // mcp-server. -----
+        String mcpServerActorToken = getAccessToken(tokenUri, "mcp-server-client", "mcp-server-secret", "mcp.tools");
+        String mcpServerDelegatedToken = exchangeToken(tokenUri, mcpClientDelegatedToken, mcpServerActorToken,
+                "mcp-server-client", "mcp-server-secret");
+        assertThat(mcpServerDelegatedToken).isNotBlank();
+
+        // ----- 4. The final token still carries the original user as
+        // subject, with a two-level actor chain: mcp-server (outer,
+        // most-recent) delegating from mcp-client (inner, previous). -----
+        JsonNode claims = decodeJwtClaims(mcpServerDelegatedToken);
+        assertThat(claims.get("sub").asString()).isEqualTo("john@doe.com");
+        JsonNode act = claims.get("act");
+        assertThat(act.get("sub").asString()).isEqualTo("mcp-server-client");
+        assertThat(act.has("act")).isTrue();
+        assertThat(act.get("act").get("sub").asString()).isEqualTo("mcp-auth-client");
     }
 
     private void saveUserAuthorization(String username, String tokenValue) {
@@ -132,6 +137,46 @@ class TokenExchangeIntegrationTest {
                 .build();
 
         authorizationService.save(authorization);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String getAccessToken(String tokenUri, String clientId, String clientSecret, String scope) {
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("grant_type", "client_credentials");
+        form.add("client_id", clientId);
+        form.add("client_secret", clientSecret);
+        form.add("scope", scope);
+
+        Map<String, Object> response = restClient.post()
+                .uri(tokenUri)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(form)
+                .retrieve()
+                .body(Map.class);
+        assertThat(response).isNotNull();
+        return (String) response.get("access_token");
+    }
+
+    @SuppressWarnings("unchecked")
+    private String exchangeToken(String tokenUri, String subjectToken, String actorToken, String clientId,
+                                  String clientSecret) {
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("grant_type", TOKEN_EXCHANGE_GRANT_TYPE);
+        form.add("subject_token", subjectToken);
+        form.add("subject_token_type", ACCESS_TOKEN_TYPE);
+        form.add("actor_token", actorToken);
+        form.add("actor_token_type", ACCESS_TOKEN_TYPE);
+        form.add("client_id", clientId);
+        form.add("client_secret", clientSecret);
+
+        Map<String, Object> response = restClient.post()
+                .uri(tokenUri)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(form)
+                .retrieve()
+                .body(Map.class);
+        assertThat(response).isNotNull();
+        return (String) response.get("access_token");
     }
 
     private JsonNode decodeJwtClaims(String jwt) {
