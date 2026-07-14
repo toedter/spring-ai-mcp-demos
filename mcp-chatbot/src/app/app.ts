@@ -1,10 +1,12 @@
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
   HostListener,
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { AuthService } from './auth.service';
 import { ThemeService, Theme } from './theme.service';
@@ -56,6 +58,16 @@ export class App {
 
   /** The tool call currently awaiting the user's approval (or null). */
   protected readonly pendingApproval = signal<PendingApproval | null>(null);
+
+  /** Reference to the deep-chat host element, used to fill its text input. */
+  private readonly chatRef = viewChild<ElementRef<HTMLElement>>('chatRef');
+
+  /** Sample questions the user can pick to fill the message input. */
+  protected readonly sampleQuestions: string[] = [
+    "Which movie is Kai's favorite quote from?",
+    'How is the weather in Munich?',
+    'Which movies of director Christopher Nolan are in the IMDB top 5?',
+  ];
 
   /** Pretty-printed arguments for the approval dialog. */
   protected readonly prettyArgs = computed(() => {
@@ -190,6 +202,44 @@ export class App {
   logout(): void {
     this.menuOpen.set(false);
     this.auth.logout();
+  }
+
+  /**
+   * Fills the deep-chat text input with the given text without sending it,
+   * so the user can review/edit it before hitting submit. deep-chat renders
+   * its editable input as a contenteditable `#text-input` div inside its
+   * shadow root; there is no public API to set its text, so we write to it
+   * directly and dispatch an `input` event to let deep-chat pick up the
+   * change (e.g. removing the placeholder).
+   */
+  fillMessage(text: string): void {
+    const host = this.chatRef()?.nativeElement;
+    const input = host?.shadowRoot?.getElementById('text-input');
+    if (!input) {
+      return;
+    }
+    input.textContent = text;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+
+    // Move the caret to the end of the inserted text.
+    const range = document.createRange();
+    range.selectNodeContents(input);
+    range.collapse(false);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  }
+
+  /** Combobox "change" handler: fills the input with the chosen sample question. */
+  onSampleSelected(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const value = select.value;
+    if (value) {
+      this.fillMessage(value);
+    }
+    // Reset back to the placeholder so the same option can be picked again.
+    select.value = '';
   }
 
   // ----- Chat streaming + tool approval -----

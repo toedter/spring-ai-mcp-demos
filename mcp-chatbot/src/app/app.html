@@ -47,6 +47,7 @@
   @if (auth.loggedIn()) {
     <div class="chat-wrap">
       <deep-chat
+        #chatRef
         class="chat"
         [connect]="connectConfig()"
         [introMessage]="introMessage"
@@ -56,6 +57,19 @@
         [auxiliaryStyle]="auxiliaryStyle()"
         [style]="chatStyle()">
       </deep-chat>
+      <div class="sample-picker">
+        <label for="sample-question" class="sample-picker-icon">💡</label>
+        <select
+          id="sample-question"
+          class="sample-picker-select"
+          [value]="''"
+          (change)="onSampleSelected($event)">
+          <option value="" disabled selected>Try a sample question…</option>
+          @for (question of sampleQuestions; track question) {
+            <option [value]="question">{{ question }}</option>
+          }
+        </select>
+      </div>
 
       @if (pendingApproval(); as approval) {
         <div class="approval-overlay">
