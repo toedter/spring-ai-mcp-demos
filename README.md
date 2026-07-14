@@ -1,59 +1,46 @@
 # Spring AI MCP Demos
 
-Several MCP demos (like an mcp server) written in Java with Spring Boot 4.0.x and Spring AI.
+[![Build](https://github.com/toedter/spring-ai-mcp-demos/actions/workflows/build.yml/badge.svg)](https://github.com/toedter/spring-ai-mcp-demos/actions/workflows/build.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/toedter/spring-ai-mcp-demos/blob/main/LICENSE)
 
-## How to run the mcp server
+This is a whole MCP stack written in Java with Spring Boot 4.0.x and Spring AI.
+It implements several demos for the MCP server, MCP client and an Angular chatbot using deep-chat.
 
-1. **Build the MCP server**
+## Starting the whole Stack
 
-   ```sh
-   ./gradlew build
-   ```
+Two convenience scripts are provided at the repository root to start all four
+services at once: the OAuth2 authorization server, the MCP server, the MCP
+client and the Angular chatbot.
 
-2. **Download and install Claude Desktop**
+- **Windows**: `start-all.bat`
+  - Opens one console window per service (auth server, MCP server, MCP
+    client, chatbot). Close a window (or press Ctrl+C in it) to stop that
+    service.
+- **Linux/macOS**: `./start-all.sh`
+  - Runs all services as background jobs of the script and writes their
+    output to `logs/*.log`. Press Ctrl+C to stop everything.
 
-    - Go to [https://claude.ai/download](https://claude.ai/download)
-    - Download the latest release for your operating system and extract it.
-    - Make sure to disable Web access in the settings of Claude Desktop.
+Both scripts start the services in this order, with short delays so each
+service is ready before the next one that depends on it starts:
 
-3. **Configure Claude Desktop**
+1. MCP Authorization Server — http://localhost:9000
+2. MCP Server — http://localhost:8082
+3. MCP Client — http://localhost:8083
+4. MCP Chatbot (Angular) — http://localhost:4200
 
-    - Edit the `claude_desktop_config.json` file.
-    - Add or update the `mcpServers` section to include:
+## How to use the Chatbot
 
-      ```json
-      {
-        "mcpServers": {
-          "demo-local": {
-            "command": "java",
-            "args": [
-              "-jar",
-              "D:\\dev\\git\\spring-ai-mcp-demos\\mcp-server\\build\\libs\\mcp-server-0.0.1-SNAPSHOT.jar",
-              "--spring.profiles.active=stdio"
-            ]
-          }
-        }
-      }
-      ```
+1. Open http://localhost:4200 in a browser.
+2. Click **Sign in** and log in with the demo user:
+   - Username: `john@doe.com`
+   - Password: `john`
+3. After a successful login you are redirected back to the app, the toolbar shows
+   **John Doe**, and the deep-chat window connects to the mcp-client so you can start
+   chatting.
+4. Ask "Which movie is Kai's favorite quote from?"
+5. Approve the tool call in the Chatbot
+6. The chatbot will call the MCP client, which calls the MCP server, which calls the OpenAI API to get the answer.
 
-      Adjust the path to the JAR file as needed. The example shows a Windows config.
-      Then copy the file to the appropriate `claude-desktop` directory.
-      Where to put in using different operating systems, you find at https://modelcontextprotocol.io/quickstart/user.
-
-4. **Start Claude Desktop**
-
-    - Launch Claude Desktop.
-    - Click on the "Search and Tools" icon and check if you see "mcp-demo-stdio".
-
-5. **Use the demo**
-
-    - Interact with the MCP server through Claude Desktop’s UI.
-    - In Claude Desktop you can ask questions like:
-      - `From which movies is Kai's favorite quote?`
-    - In Claude Desktop you can now ask questions like:
-      - `How many movies directed by Quentin Tarantino are in the top 100?`
-      - `Which movies directed by Christopher Nolan are in the top ten?`
-  
 ## License
 
 Apache 2.0
