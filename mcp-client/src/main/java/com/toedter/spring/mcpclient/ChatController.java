@@ -4,6 +4,9 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,14 +47,24 @@ public class ChatController {
         if (message == null || message.isBlank()) {
             return "Please provide 'message' parameter";
         }
-        return this.chatClient.prompt().user(message).call().content();
+        CurrentUserToken.set(extractUserAccessToken());
+        try {
+            return this.chatClient.prompt().user(message).call().content();
+        } finally {
+            CurrentUserToken.clear();
+        }
     }
     /** Non-streaming endpoint (kept for compatibility). */
     @PostMapping("/api/chat")
     public Map<String, Object> apiChat(@RequestBody DeepChatRequest request) {
         String message = request.lastUserMessage();
-        String answer = this.chatClient.prompt().user(message).call().content();
-        return Map.of("text", answer == null ? "" : answer);
+        CurrentUserToken.set(extractUserAccessToken());
+        try {
+            String answer = this.chatClient.prompt().user(message).call().content();
+            return Map.of("text", answer == null ? "" : answer);
+        } finally {
+            CurrentUserToken.clear();
+        }
     }
     /**
      * Streaming endpoint driven by the Angular deep-chat custom handler.
@@ -69,8 +82,13 @@ public class ChatController {
             return sink.asFlux();
         }
         StreamSession session = new StreamSession(sink, objectMapper);
+        // Capture the user's token on the request thread: the model/tool call
+        // below runs on a boundedElastic worker thread where Spring Security's
+        // SecurityContextHolder is not propagated.
+        String userAccessToken = extractUserAccessToken();
         Schedulers.boundedElastic().schedule(() -> {
             ToolApprovalContext.set(session);
+            CurrentUserToken.set(userAccessToken);
             try {
                 String answer = this.chatClient.prompt().user(message).call().content();
                 streamWords(sink, answer == null ? "" : answer);
@@ -81,6 +99,7 @@ public class ChatController {
                 sink.tryEmitComplete();
             } finally {
                 ToolApprovalContext.clear();
+                CurrentUserToken.clear();
             }
         });
         return sink.asFlux();
@@ -109,6 +128,20 @@ public class ChatController {
         } catch (Exception e) {
             return "{\"type\":\"error\",\"message\":\"serialization failed\"}";
         }
+    }
+    /**
+     * Returns the raw access token of the currently authenticated end user
+     * (as validated by the resource-server JWT filter), or {@code null} if
+     * the request isn't authenticated with a JWT (e.g. in tests). Used as the
+     * {@code subject_token} for the RFC 8693 token exchange in
+     * {@link McpTransportConfig}.
+     */
+    private String extractUserAccessToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof JwtAuthenticationToken jwtAuthentication) {
+            return jwtAuthentication.getToken().getTokenValue();
+        }
+        return null;
     }
     /** Request payload sent by the deep-chat component. */
     public record DeepChatRequest(List<Message> messages) {
