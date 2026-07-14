@@ -2,6 +2,7 @@ package com.toedter.spring.mcpclient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -29,14 +30,16 @@ class ChatControllerTest {
         when(chatClient.prompt()).thenReturn(requestSpec);
 
         var builderWithSystem = mock(ChatClient.Builder.class);
-        when(builderWithSystem.defaultTools(any(ToolCallbackProvider.class))).thenReturn(builderWithSystem);
+        when(builderWithSystem.defaultToolCallbacks(any(ToolCallback[].class))).thenReturn(builderWithSystem);
         when(builderWithSystem.build()).thenReturn(chatClient);
 
         chatClientBuilder = mock(ChatClient.Builder.class);
         when(chatClientBuilder.defaultSystem(any(String.class))).thenReturn(builderWithSystem);
 
         ToolCallbackProvider tools = mock(ToolCallbackProvider.class);
-        ChatController controller = new ChatController(chatClientBuilder, tools);
+        when(tools.getToolCallbacks()).thenReturn(new ToolCallback[0]);
+
+        ChatController controller = new ChatController(chatClientBuilder, tools, new ApprovalRegistry());
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
     @Test

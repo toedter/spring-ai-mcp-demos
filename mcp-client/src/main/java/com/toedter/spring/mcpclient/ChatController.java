@@ -40,7 +40,10 @@ public class ChatController {
                 .build();
     }
     @GetMapping("/chat")
-    public String chat(@RequestParam String message) {
+    public String chat(@RequestParam(required = false) String message) {
+        if (message == null || message.isBlank()) {
+            return "Please provide 'message' parameter";
+        }
         return this.chatClient.prompt().user(message).call().content();
     }
     /** Non-streaming endpoint (kept for compatibility). */
