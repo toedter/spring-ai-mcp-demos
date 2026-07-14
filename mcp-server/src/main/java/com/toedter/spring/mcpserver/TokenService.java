@@ -112,6 +112,13 @@ public class TokenService {
         form.add("actor_token_type", ACCESS_TOKEN_TYPE);
         form.add("client_id", clientId);
         form.add("client_secret", clientSecret);
+        // Without an explicit scope, the authorization server falls back to
+        // authorizing all of the subject token's scopes (openid, profile,
+        // mcp.tools from the upstream user/mcp-client exchange), which fails
+        // with invalid_scope because mcp-server-client is only registered for
+        // mcp.tools. Requesting the scope explicitly limits validation to
+        // what this client actually needs and is registered for.
+        form.add("scope", scope);
 
         Map<String, Object> response = postForm(form);
         if (response == null || response.get("access_token") == null) {

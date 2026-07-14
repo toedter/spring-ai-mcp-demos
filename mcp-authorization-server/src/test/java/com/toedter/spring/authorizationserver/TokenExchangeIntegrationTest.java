@@ -102,7 +102,7 @@ class TokenExchangeIntegrationTest {
         // mcp-server. -----
         String mcpServerActorToken = getAccessToken(tokenUri, "mcp-server-client", "mcp-server-secret", "mcp.tools");
         String mcpServerDelegatedToken = exchangeToken(tokenUri, mcpClientDelegatedToken, mcpServerActorToken,
-                "mcp-server-client", "mcp-server-secret");
+                "mcp-server-client", "mcp-server-secret", "mcp.tools");
         assertThat(mcpServerDelegatedToken).isNotBlank();
 
         // ----- 4. The final token still carries the original user as
@@ -157,9 +157,14 @@ class TokenExchangeIntegrationTest {
         return (String) response.get("access_token");
     }
 
-    @SuppressWarnings("unchecked")
     private String exchangeToken(String tokenUri, String subjectToken, String actorToken, String clientId,
                                   String clientSecret) {
+        return exchangeToken(tokenUri, subjectToken, actorToken, clientId, clientSecret, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String exchangeToken(String tokenUri, String subjectToken, String actorToken, String clientId,
+                                  String clientSecret, String scope) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", TOKEN_EXCHANGE_GRANT_TYPE);
         form.add("subject_token", subjectToken);
@@ -168,6 +173,9 @@ class TokenExchangeIntegrationTest {
         form.add("actor_token_type", ACCESS_TOKEN_TYPE);
         form.add("client_id", clientId);
         form.add("client_secret", clientSecret);
+        if (scope != null) {
+            form.add("scope", scope);
+        }
 
         Map<String, Object> response = restClient.post()
                 .uri(tokenUri)
