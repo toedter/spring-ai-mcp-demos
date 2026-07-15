@@ -15,12 +15,19 @@
  */
 package com.toedter.spring.mcpserver;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -28,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -58,7 +66,9 @@ public class TokenService {
     private static final String TOKEN_EXCHANGE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:token-exchange";
     private static final String ACCESS_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
 
-    private final RestClient restClient = RestClient.create();
+    private static final Logger log = LoggerFactory.getLogger(TokenService.class);
+
+    private final RestClient restClient;
     private final ObjectMapper objectMapper = JsonMapper.builder().build();
     private final String tokenUri;
     private final String clientId;
@@ -77,23 +87,36 @@ public class TokenService {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.scope = scope;
+
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofSeconds(5));
+        requestFactory.setReadTimeout(Duration.ofSeconds(10));
+        this.restClient = RestClient.builder()
+                .requestFactory(requestFactory)
+                .build();
     }
 
     /**
-     * Exchanges the access token used to call this MCP tool for a new token
-     * that adds mcp-server as the actor, and returns the exchanged token's
-     * decoded JWT claims (pretty-printed JSON) so it can be inspected.
+     * Diagnostic tool: exchanges the current request's access token so that
+     * mcp-server is added as an actor, and returns only the resulting subject
+     * and actor chain (no scopes, expiry, issuer, or the raw token itself) so
+     * RFC 8693 delegation can be demonstrated without exposing token material
+     * to the model.
      */
     @McpTool(name = "get_mcp_server_access_token",
-            description = "Exchanges the current request's access token so that mcp-server is added as an actor, "
-                    + "and returns the decoded JWT claims of the exchanged access token.")
+            description = "Diagnostic tool: exchanges the current request's access token so that mcp-server is "
+                    + "added as an actor, and returns only the resulting subject and actor chain "
+                    + "(no scopes, expiry, or raw token) to demonstrate RFC 8693 delegation.",
+            annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = true))
     public String getMcpServerAccessToken() {
         String incomingAccessToken = currentAccessToken();
         if (incomingAccessToken == null) {
             return "No authenticated access token available for the current request.";
         }
         String exchangedAccessToken = exchangeToken(incomingAccessToken);
-        return decodeJwtClaimsPretty(exchangedAccessToken);
+        String result = describeActorChain(exchangedAccessToken);
+        log.info("Exchanged access token for actor 'mcp-server-client'");
+        return result;
     }
 
     /**
@@ -120,9 +143,15 @@ public class TokenService {
         // what this client actually needs and is registered for.
         form.add("scope", scope);
 
-        Map<String, Object> response = postForm(form);
+        Map<String, Object> response;
+        try {
+            response = postForm(form);
+        } catch (RestClientException e) {
+            throw ToolErrors.sanitized(log, "Unable to exchange the access token with the authorization server", e);
+        }
         if (response == null || response.get("access_token") == null) {
-            throw new IllegalStateException("Token exchange endpoint " + tokenUri + " returned no access_token");
+            throw ToolErrors.sanitized(log, "Unable to exchange the access token with the authorization server",
+                    new IllegalStateException("Token exchange endpoint " + tokenUri + " returned no access_token"));
         }
         return (String) response.get("access_token");
     }
@@ -144,9 +173,15 @@ public class TokenService {
         form.add("client_secret", clientSecret);
         form.add("scope", scope);
 
-        Map<String, Object> response = postForm(form);
+        Map<String, Object> response;
+        try {
+            response = postForm(form);
+        } catch (RestClientException e) {
+            throw ToolErrors.sanitized(log, "Unable to obtain mcp-server's own access token", e);
+        }
         if (response == null || response.get("access_token") == null) {
-            throw new IllegalStateException("Token endpoint " + tokenUri + " returned no access_token");
+            throw ToolErrors.sanitized(log, "Unable to obtain mcp-server's own access token",
+                    new IllegalStateException("Token endpoint " + tokenUri + " returned no access_token"));
         }
         String accessToken = (String) response.get("access_token");
         Number expiresIn = response.get("expires_in") instanceof Number n ? n : 300;
@@ -174,11 +209,23 @@ public class TokenService {
         return null;
     }
 
-    private String decodeJwtClaimsPretty(String jwt) {
+    /**
+     * Decodes {@code jwt} and returns only the {@code sub} claim and the
+     * chain of actor subjects from the (possibly nested) {@code act} claim —
+     * never the raw token, scopes, issuer, or expiry, since this projection
+     * is returned as tool output the model can read.
+     */
+    @SuppressWarnings("unchecked")
+    private String describeActorChain(String jwt) {
         String[] parts = jwt.split("\\.");
         byte[] payload = Base64.getUrlDecoder().decode(parts[1]);
-        Object claims = objectMapper.readValue(payload, Object.class);
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
+        Map<String, Object> claims = objectMapper.readValue(payload, Map.class);
+
+        Object act = claims.get("act");
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("sub", claims.get("sub"));
+        result.put("act", act);
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
     }
 
     private record CachedToken(String accessToken, Instant expiry) {

@@ -15,8 +15,12 @@
  */
 package com.toedter.spring.mcpserver;
 
+import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -25,15 +29,22 @@ import org.springframework.web.client.RestClientException;
 public class MovieService {
 
     private static final String BASE_URL = "https://nexus.toedter.com/api/jsonapi";
+    private static final int MAX_PAGE_SIZE = 250;
+
+    private static final Logger log = LoggerFactory.getLogger(MovieService.class);
 
     private final RestClient restClient;
 
     public MovieService() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(Duration.ofSeconds(5));
+        requestFactory.setReadTimeout(Duration.ofSeconds(10));
 
         this.restClient = RestClient.builder()
                 .baseUrl(BASE_URL)
                 .defaultHeader("Accept", "application/vnd.api+json")
                 .defaultHeader("User-Agent", "DemoMcpServer/1.0 (kai@toedter.com)")
+                .requestFactory(requestFactory)
                 .build();
     }
 
@@ -43,22 +54,28 @@ public class MovieService {
      * @param pageNumber page Number
      * @param pageSize   page size
      * @return The ranked list of movies
-     * @throws RestClientException if the request fails
      */
-    @McpTool(name = "top_ranked_imdb_movies", description = "Get the top-ranked movies from IMDb.")
+    @McpTool(name = "get_top_ranked_movies", description = "Get the top-ranked movies from IMDb.",
+            annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = true))
     public String getTopRankedMovies(
             @McpToolParam(description = "Page number, starting at 0, default is 0", required = false) int pageNumber,
             @McpToolParam(description = "Page size, default is 10, maximum is 250", required = false) int pageSize) {
 
-        return restClient.get()
-                .uri("/movies?page[number]={pageNumber}&page[size]={pageSize}", pageNumber, pageSize)
-                .retrieve()
-                .body(String.class);
-    }
+        if (pageNumber < 0) {
+            throw new IllegalArgumentException("pageNumber must not be negative");
+        }
+        if (pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException("pageSize must be between 1 and " + MAX_PAGE_SIZE);
+        }
 
-    public static void main(String[] args) {
-        MovieService client = new MovieService();
-        System.out.println(client.getTopRankedMovies(0, 250));
+        try {
+            return restClient.get()
+                    .uri("/movies?page[number]={pageNumber}&page[size]={pageSize}", pageNumber, pageSize)
+                    .retrieve()
+                    .body(String.class);
+        } catch (RestClientException e) {
+            throw ToolErrors.sanitized(log, "Unable to fetch movies from the upstream service", e);
+        }
     }
 
 }

@@ -67,6 +67,7 @@ export class App {
     "Which movie is Kai's favorite quote from?",
     'How is the weather in Munich?',
     'Which movies of director Christopher Nolan are in the IMDB top 5?',
+    'Show me the mcp server token.'
   ];
 
   /** Pretty-printed arguments for the approval dialog. */

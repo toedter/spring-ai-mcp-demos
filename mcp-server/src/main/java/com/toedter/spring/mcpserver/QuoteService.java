@@ -16,27 +16,15 @@
 package com.toedter.spring.mcpserver;
 
 import org.springframework.ai.mcp.annotation.McpTool;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
 public class QuoteService {
     @McpTool(name = "get_kais_favorite_movie_quote",
-            description = "Get Kai’s favorite movie quote.")
+            description = "Get Kai’s favorite movie quote.",
+            annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = false))
     public String getKaisFavoriteMovieQuote() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-            String accessToken = jwtAuth.getToken().getTokenValue();
-            System.out.println("Access token: " + accessToken);
-        }
         return "With great power comes great responsibility.";
-    }
-
-    public static void main(String[] args) {
-        QuoteService client = new QuoteService();
-        System.out.println(client.getKaisFavoriteMovieQuote());
     }
 
 }
