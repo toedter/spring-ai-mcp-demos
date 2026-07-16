@@ -45,9 +45,9 @@ service is ready before the next one that depends on it starts:
 
 ## Licenses
 
-mcp-authorization-server is licensed under the Apache License, Version 2.0;
-mcp-client is licensed under the Apache License, Version 2.0;
-mcp-server is licensed under the Apache License, Version 2.0;
-mcp-chatbot is licensed under the MIT License;
+- mcp-authorization-server is licensed under the Apache License, Version 2.0
+- mcp-client is licensed under the Apache License, Version 2.0
+- mcp-server is licensed under the Apache License, Version 2.0
+- mcp-chatbot is licensed under the MIT License
 
 
