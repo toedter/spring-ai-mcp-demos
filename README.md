@@ -8,6 +8,11 @@ It implements several demos for the MCP server, MCP client and an Angular chatbo
 
 ![Chatbot](chatbot.png)
 
+## Prepare your LLM
+
+Edit the `mcp-client/src/main/resources/application.yaml` file and set your OpenAI settings.
+If you want to use a local model, you could also configure Ollama.
+
 ## Starting the whole Stack
 
 Two convenience scripts are provided at the repository root to start all four
