@@ -6,6 +6,8 @@
 This is a whole MCP stack written in Java with Spring Boot 4.0.x and Spring AI.
 It implements several demos for the MCP server, MCP client and an Angular chatbot using deep-chat.
 
+![Chatbot](chatbot.png)
+
 ## Starting the whole Stack
 
 Two convenience scripts are provided at the repository root to start all four
