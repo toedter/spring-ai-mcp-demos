@@ -43,8 +43,11 @@ service is ready before the next one that depends on it starts:
 5. Approve the tool call in the Chatbot
 6. The chatbot will call the MCP client, which calls the MCP server, which calls the OpenAI API to get the answer.
 
-## License
+## Licenses
 
-Apache 2.0
+mcp-authorization-server is licensed under the Apache License, Version 2.0;
+mcp-client is licensed under the Apache License, Version 2.0;
+mcp-server is licensed under the Apache License, Version 2.0;
+mcp-chatbot is licensed under the MIT License;
 
 
