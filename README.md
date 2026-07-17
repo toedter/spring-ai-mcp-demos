@@ -1,7 +1,8 @@
 # Spring AI MCP Demos
 
 [![Build](https://github.com/toedter/spring-ai-mcp-demos/actions/workflows/build.yml/badge.svg)](https://github.com/toedter/spring-ai-mcp-demos/actions/workflows/build.yml)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/toedter/spring-ai-mcp-demos/blob/main/LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 This is a whole MCP stack written in Java with Spring Boot 4.0.x and Spring AI.
 It implements several demos for the MCP server, MCP client and an Angular chatbot using deep-chat.
