@@ -20,6 +20,10 @@
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
+.toolbar-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
 .toolbar-title {
   font-size: 1.25rem;
   font-weight: 600;
