@@ -33,6 +33,13 @@ spring:
         name: demo-mcp-client
         version: 0.0.1
         type: SYNC
+        # A tool call can nest a sampling/elicitation round-trip back through
+        # this client (see DemoCapabilitiesService in mcp-server), each
+        # gated by human approval (see ApprovalRegistry.APPROVAL_TIMEOUT).
+        # The default 20s request-timeout would abort the outer tool call
+        # long before a human has a chance to respond, so it's raised to
+        # match the approval window.
+        request-timeout: 5m
 
 # change your model and base-url to use a different OpenAI LLM provider
     openai:

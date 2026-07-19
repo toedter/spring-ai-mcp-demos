@@ -317,4 +317,34 @@ deep-chat.chat {
 .approval-actions .btn.primary:hover {
   background-color: var(--brand-dark);
 }
+.elicitation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 0 0 1.25rem;
+}
+.elicitation-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.elicitation-required {
+  color: var(--brand);
+}
+.elicitation-field-desc {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.elicitation-input {
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+}
 

@@ -2,6 +2,7 @@ package com.toedter.spring.mcpclient;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,9 @@ import org.springframework.web.client.RestClient;
  * <p>
  * Uses the same {@code mcp-client-client} client-credentials registration as
  * {@code mcp-authorization-server/get-access-token.http}.
+ * <p>
+ * Tokens are cached per MCP server connection name so that a token is never
+ * reused across servers, even though this demo only configures one.
  */
 @Component
 public class McpServiceTokenProvider {
@@ -27,7 +31,7 @@ public class McpServiceTokenProvider {
     private final String clientSecret;
     private final String scope;
 
-    private volatile CachedToken cachedToken;
+    private final Map<String, CachedToken> cachedTokens = new ConcurrentHashMap<>();
 
     public McpServiceTokenProvider(
             @Value("${mcp.service-token.token-uri}") String tokenUri,
@@ -40,12 +44,16 @@ public class McpServiceTokenProvider {
         this.scope = scope;
     }
 
-    /** Returns a valid access token, fetching (or refreshing) it as needed. */
-    public synchronized String getAccessToken() {
-        CachedToken token = this.cachedToken;
+    /**
+     * Returns a valid access token scoped to {@code serverName}, fetching (or
+     * refreshing) it as needed. Each MCP server connection gets its own
+     * cached token so a token is never reused across servers.
+     */
+    public synchronized String getAccessToken(String serverName) {
+        CachedToken token = this.cachedTokens.get(serverName);
         if (token == null || !token.isValid()) {
             token = fetchToken();
-            this.cachedToken = token;
+            this.cachedTokens.put(serverName, token);
         }
         return token.accessToken();
     }

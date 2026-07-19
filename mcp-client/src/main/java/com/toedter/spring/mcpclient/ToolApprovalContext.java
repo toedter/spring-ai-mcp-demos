@@ -1,27 +1,41 @@
 package com.toedter.spring.mcpclient;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 /**
- * Holds the {@link StreamSession} for the current worker thread so the
- * tool-approval callback can reach the active SSE stream. It is set by the
- * streaming chat endpoint before invoking the model and cleared afterward.
+ * Holds the {@link StreamSession} of the currently active streaming chat
+ * request, so tool-call, sampling, and elicitation handlers can reach the
+ * active SSE stream. This is deliberately NOT a {@link ThreadLocal}: the MCP
+ * SDK invokes sampling/elicitation callbacks on its own transport-listener
+ * thread, not the {@code boundedElastic} worker thread on which
+ * {@link ChatController} sets the session — a plain thread-local lookup
+ * would always see {@code null} there.
+ * <p>
+ * Active sessions are tracked on a stack, so nested/concurrent requests
+ * resolve to the most recently started one still in flight. For a
+ * single-user demo like this one that's exactly right; a multi-tenant
+ * deployment would need to correlate sampling/elicitation callbacks with
+ * their originating request explicitly (the MCP Java SDK does not currently
+ * pass that correlation into the callback).
  */
 public final class ToolApprovalContext {
 
-    private static final ThreadLocal<StreamSession> CURRENT = new ThreadLocal<>();
+    private static final Deque<StreamSession> ACTIVE = new ArrayDeque<>();
 
     private ToolApprovalContext() {
     }
 
-    public static void set(StreamSession session) {
-        CURRENT.set(session);
+    public static synchronized void set(StreamSession session) {
+        ACTIVE.push(session);
     }
 
-    public static StreamSession current() {
-        return CURRENT.get();
+    public static synchronized StreamSession current() {
+        return ACTIVE.peek();
     }
 
-    public static void clear() {
-        CURRENT.remove();
+    public static synchronized void clear() {
+        ACTIVE.poll();
     }
 }
 

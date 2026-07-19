@@ -26,18 +26,18 @@ public class McpTransportConfig {
             McpServiceTokenProvider tokenProvider, TokenExchangeService tokenExchangeService) {
         return (serverName, builder) -> builder.httpRequestCustomizer(
                 (requestBuilder, method, uri, body, context) -> requestBuilder.header("Authorization",
-                        "Bearer " + resolveAccessToken(tokenProvider, tokenExchangeService)));
+                        "Bearer " + resolveAccessToken(serverName, tokenProvider, tokenExchangeService)));
     }
 
-    private static String resolveAccessToken(McpServiceTokenProvider tokenProvider,
+    private static String resolveAccessToken(String serverName, McpServiceTokenProvider tokenProvider,
                                               TokenExchangeService tokenExchangeService) {
-        String serviceToken = tokenProvider.getAccessToken();
+        String serviceToken = tokenProvider.getAccessToken(serverName);
         String userAccessToken = CurrentUserToken.current();
         if (userAccessToken == null) {
             return serviceToken;
         }
         try {
-            return tokenExchangeService.exchangeUserToken(userAccessToken, serviceToken);
+            return tokenExchangeService.exchangeUserToken(serverName, userAccessToken, serviceToken);
         } catch (Exception ex) {
             // Fall back to the plain service token if the exchange fails, so a
             // temporary authorization-server hiccup doesn't break tool calls.

@@ -24,6 +24,10 @@ import org.springframework.web.client.RestClient;
  * {@link McpServiceTokenProvider}) as the {@code actor_token}, and the
  * incoming user's access token as the {@code subject_token}. Both tokens are
  * sent as {@code urn:ietf:params:oauth:token-type:access_token}.
+ * <p>
+ * Exchanged tokens are cached per {@code (serverName, subjectAccessToken)}
+ * pair so that a delegated token is never reused across MCP server
+ * connections, even though this demo only configures one.
  *
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc8693">RFC 8693 -
  * OAuth 2.0 Token Exchange</a>
@@ -39,8 +43,8 @@ public class TokenExchangeService {
     private final String clientId;
     private final String clientSecret;
 
-    /** Exchanged tokens are cached per subject token to avoid a round-trip per tool call. */
-    private final Map<String, CachedToken> cache = new ConcurrentHashMap<>();
+    /** Exchanged tokens are cached per (server, subject token) to avoid a round-trip per tool call. */
+    private final Map<CacheKey, CachedToken> cache = new ConcurrentHashMap<>();
 
     public TokenExchangeService(
             @Value("${mcp.service-token.token-uri}") String tokenUri,
@@ -53,17 +57,19 @@ public class TokenExchangeService {
 
     /**
      * Exchanges {@code subjectAccessToken} (the end user's access token) for a
-     * new access token that keeps the user's {@code sub} claim while adding
-     * {@code actorAccessToken}'s owner (mcp-client) as the {@code act} claim.
+     * new access token scoped to {@code serverName} that keeps the user's
+     * {@code sub} claim while adding {@code actorAccessToken}'s owner
+     * (mcp-client) as the {@code act} claim.
      */
-    public String exchangeUserToken(String subjectAccessToken, String actorAccessToken) {
-        CachedToken cached = cache.get(subjectAccessToken);
+    public String exchangeUserToken(String serverName, String subjectAccessToken, String actorAccessToken) {
+        CacheKey key = new CacheKey(serverName, subjectAccessToken);
+        CachedToken cached = cache.get(key);
         if (cached != null && cached.isValid()) {
             return cached.accessToken();
         }
         CachedToken fresh = fetchExchangedToken(subjectAccessToken, actorAccessToken);
         cache.entrySet().removeIf(entry -> !entry.getValue().isValid());
-        cache.put(subjectAccessToken, fresh);
+        cache.put(key, fresh);
         return fresh.accessToken();
     }
 
@@ -93,6 +99,9 @@ public class TokenExchangeService {
         // Refresh a little early to avoid races with in-flight requests.
         Instant expiry = Instant.now().plusSeconds(Math.max(0, expiresIn.longValue() - 30));
         return new CachedToken(accessToken, expiry);
+    }
+
+    private record CacheKey(String serverName, String subjectAccessToken) {
     }
 
     private record CachedToken(String accessToken, Instant expiry) {

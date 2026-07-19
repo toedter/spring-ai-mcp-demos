@@ -1,4 +1,10 @@
 ### Kai's Favorite Quote Movie
+# NOTE: GET /chat has no interactive channel to ask for tool-call approval, so
+# per the MCP client guidelines it now fails closed: any MCP tool call the
+# model attempts here (e.g. get_kais_favorite_movie_quote) is refused rather
+# than silently executed, and the model will explain it could not complete
+# the request. Use the Angular chatbot's /api/chat/stream flow to see the
+# actual approval dialog and a real answer.
 GET http://localhost:8083/chat?message=From which movie is Kai's favorite quote?
 Accept: application/json
 

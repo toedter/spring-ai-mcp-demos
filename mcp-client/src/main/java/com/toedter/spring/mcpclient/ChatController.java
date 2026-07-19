@@ -16,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 /**
@@ -110,6 +111,23 @@ public class ChatController {
         approvalRegistry.complete(decision.id(), decision.approved());
         return Map.of("ok", true);
     }
+
+    /** Receives the user's approve/deny decision for a pending sampling request. */
+    @PostMapping("/api/chat/sampling-decision")
+    public Map<String, Object> samplingDecision(@RequestBody ApprovalDecision decision) {
+        approvalRegistry.complete(decision.id(), decision.approved());
+        return Map.of("ok", true);
+    }
+
+    /** Receives the user's response (accept/decline/cancel + form values) to a pending elicitation. */
+    @PostMapping("/api/chat/elicitation-decision")
+    public Map<String, Object> elicitationDecision(@RequestBody ElicitationDecision decision) {
+        Map<String, Object> resolved = new LinkedHashMap<>();
+        resolved.put("action", decision.action());
+        resolved.put("content", decision.content() == null ? Map.of() : decision.content());
+        approvalRegistry.complete(decision.id(), resolved);
+        return Map.of("ok", true);
+    }
     private void streamWords(Sinks.Many<String> sink, String text) {
         // Split keeping trailing spaces so words re-join naturally in the UI.
         String[] tokens = text.split("(?<= )");
@@ -155,5 +173,9 @@ public class ChatController {
     public record Message(String role, String text) {
     }
     public record ApprovalDecision(String id, boolean approved) {
+    }
+
+    /** {@code action} is one of "accept", "decline", "cancel"; {@code content} is only present when accepting. */
+    public record ElicitationDecision(String id, String action, Map<String, Object> content) {
     }
 }
