@@ -112,11 +112,10 @@ export class App {
   /** Sample questions the user can pick to fill the message input. */
   protected readonly sampleQuestions: string[] = [
     "Which movie is Kai's favorite quote from?",
-    'How is the weather in Munich?',
+    'How is the weather in Munich? Use my preferred temperature unit.',
     'Which movies of director Christopher Nolan are in the IMDB top 5?',
     'Show me the mcp server token.',
-    'Write a haiku about the weather in Munich.',
-    'What temperature unit do I prefer?',
+    'Write a haiku about the weather in Munich.'
   ];
 
   /** Pretty-printed arguments for the approval dialog. */
