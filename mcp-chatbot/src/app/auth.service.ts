@@ -22,12 +22,34 @@ export class AuthService {
   /** Called once on application startup (see app.config.ts). */
   async init(): Promise<void> {
     this.oauth.configure(authConfig);
+
+    // Keep the signals and the access-token expiry timer in sync with every
+    // token issued, whether from login or a background refresh.
+    this.oauth.events.subscribe((event) => {
+      switch (event.type) {
+        case 'token_received':
+        case 'token_refreshed':
+          this.syncFromOAuthService();
+          break;
+        case 'token_refresh_error':
+          // The refresh token itself is no longer usable (expired/revoked);
+          // silent recovery isn't possible, so drop back to the login screen.
+          console.error('Token refresh failed, logging out', event);
+          this.logout();
+          break;
+      }
+    });
+
     try {
       await this.oauth.loadDiscoveryDocumentAndTryLogin();
+      // Automatically renews the access token shortly before it expires,
+      // using the refresh_token grant (responseType is 'code', so this calls
+      // oauth.refreshToken() internally rather than an iframe-based flow).
+      this.oauth.setupAutomaticSilentRefresh();
     } catch (error) {
       console.error('OIDC discovery / login failed', error);
     }
-    this.refresh();
+    this.syncFromOAuthService();
   }
 
   login(): void {
@@ -41,7 +63,13 @@ export class AuthService {
     this.loggedIn.set(false);
   }
 
-  private refresh(): void {
+  /** Forces an immediate access-token refresh, e.g. after a request comes back 401. */
+  async refreshAccessToken(): Promise<string> {
+    await this.oauth.refreshToken();
+    return this.oauth.getAccessToken();
+  }
+
+  private syncFromOAuthService(): void {
     const valid = this.oauth.hasValidAccessToken();
     this.loggedIn.set(valid);
     this.accessToken.set(valid ? this.oauth.getAccessToken() : '');

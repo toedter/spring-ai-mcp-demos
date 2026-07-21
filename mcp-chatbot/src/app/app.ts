@@ -300,6 +300,31 @@ export class App {
   // ----- Chat streaming + tool approval -----
 
   /**
+   * Wraps fetch() with a Bearer Authorization header, refreshing the access
+   * token and retrying once if the backend responds 401 (e.g. the token
+   * expired between requests before the background silent-refresh timer
+   * fired). If the refresh itself fails, the original 401 is returned so
+   * callers report it normally.
+   */
+  private async authFetch(url: string, init: RequestInit): Promise<Response> {
+    const withAuth = (token: string): RequestInit => ({
+      ...init,
+      headers: { ...init.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    });
+
+    let response = await fetch(url, withAuth(this.auth.accessToken()));
+    if (response.status === 401) {
+      try {
+        const newToken = await this.auth.refreshAccessToken();
+        response = await fetch(url, withAuth(newToken));
+      } catch (error) {
+        console.error('Failed to refresh access token', error);
+      }
+    }
+    return response;
+  }
+
+  /**
    * deep-chat custom handler: POST the conversation to the mcp-client streaming
    * endpoint and read the Server-Sent-Events response. Each event is a JSON
    * object; tool-approval events pop up the confirmation dialog while chunk and
@@ -309,13 +334,9 @@ export class App {
     try {
       signals.onOpen();
 
-      const token = this.auth.accessToken();
-      const response = await fetch(MCP_CHAT_URL, {
+      const response = await this.authFetch(MCP_CHAT_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
 
@@ -430,13 +451,9 @@ export class App {
     }
     this.pendingApproval.set(null);
 
-    const token = this.auth.accessToken();
-    fetch(MCP_APPROVE_URL, {
+    this.authFetch(MCP_APPROVE_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: pending.id, approved }),
     }).catch((error) => console.error('Failed to submit approval decision', error));
   }
@@ -460,13 +477,9 @@ export class App {
     }
     this.pendingSampling.set(null);
 
-    const token = this.auth.accessToken();
-    fetch(MCP_SAMPLING_DECISION_URL, {
+    this.authFetch(MCP_SAMPLING_DECISION_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: pending.id, approved }),
     }).catch((error) => console.error('Failed to submit sampling decision', error));
   }
@@ -516,13 +529,9 @@ export class App {
     this.pendingElicitation.set(null);
     this.elicitationValues.set({});
 
-    const token = this.auth.accessToken();
-    fetch(MCP_ELICITATION_DECISION_URL, {
+    this.authFetch(MCP_ELICITATION_DECISION_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: pending.id, action, content }),
     }).catch((error) => console.error('Failed to submit elicitation decision', error));
   }
