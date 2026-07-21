@@ -58,8 +58,8 @@ public class MovieService {
     @McpTool(name = "get_top_ranked_movies", description = "Get the top-ranked movies from IMDb.",
             annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = true))
     public String getTopRankedMovies(
-            @McpToolParam(description = "Page number, starting at 0, default is 0", required = false) int pageNumber,
-            @McpToolParam(description = "Page size, default is 10, maximum is 250", required = false) int pageSize) {
+            @McpToolParam(description = "Page number, starting at 0") int pageNumber,
+            @McpToolParam(description = "Page size, maximum is 250") int pageSize) {
 
         if (pageNumber < 0) {
             throw new IllegalArgumentException("pageNumber must not be negative");
