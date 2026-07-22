@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class QuoteService {
-    @McpTool(name = "get_kais_favorite_movie_quote",
-            description = "Get Kai’s favorite movie quote.",
-            annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = false))
-    public String getKaisFavoriteMovieQuote() {
-        return "With great power comes great responsibility.";
-    }
-
+  @McpTool(
+      name = "get_kais_favorite_movie_quote",
+      description = "Get Kai’s favorite movie quote.",
+      annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = false))
+  public String getKaisFavoriteMovieQuote() {
+    return "With great power comes great responsibility.";
+  }
 }

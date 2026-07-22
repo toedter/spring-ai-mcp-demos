@@ -18,23 +18,21 @@ package com.toedter.spring.mcpserver;
 import org.slf4j.Logger;
 
 /**
- * Turns a caught exception into a sanitized error safe to return to an MCP
- * client (and, transitively, the model). The real exception — which may
- * contain upstream URLs, response bodies, or other internal details — is
- * logged server-side; only a generic, non-sensitive message is propagated.
+ * Turns a caught exception into a sanitized error safe to return to an MCP client (and,
+ * transitively, the model). The real exception — which may contain upstream URLs, response bodies,
+ * or other internal details — is logged server-side; only a generic, non-sensitive message is
+ * propagated.
  */
 final class ToolErrors {
 
-    private ToolErrors() {
-    }
+  private ToolErrors() {}
 
-    /**
-     * Logs {@code cause} at {@code WARN} and returns an {@link IllegalStateException}
-     * carrying only {@code publicMessage}, suitable for the caller to throw so it
-     * becomes the tool's error content.
-     */
-    static IllegalStateException sanitized(Logger log, String publicMessage, Exception cause) {
-        log.warn(publicMessage, cause);
-        return new IllegalStateException(publicMessage);
-    }
+  /**
+   * Logs {@code cause} at {@code WARN} and returns an {@link IllegalStateException} carrying only
+   * {@code publicMessage}, suitable for the caller to throw so it becomes the tool's error content.
+   */
+  static IllegalStateException sanitized(Logger log, String publicMessage, Exception cause) {
+    log.warn(publicMessage, cause);
+    return new IllegalStateException(publicMessage);
+  }
 }

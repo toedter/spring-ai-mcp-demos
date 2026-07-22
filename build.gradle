@@ -1,7 +1,23 @@
+plugins {
+	id 'com.diffplug.spotless' version '8.8.0' apply false
+}
+
 allprojects {
 
 	apply plugin: 'idea'
 	apply plugin: 'eclipse'
+	apply plugin: 'com.diffplug.spotless'
+
+	spotless {
+		java {
+			target 'src/*/java/**/*.java'
+			googleJavaFormat()
+			removeUnusedImports()
+			importOrder()
+			trimTrailingWhitespace()
+			endWithNewline()
+		}
+	}
 
 	repositories {
 		mavenCentral()

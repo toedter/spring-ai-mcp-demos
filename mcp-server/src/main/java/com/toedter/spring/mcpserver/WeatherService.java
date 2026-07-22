@@ -28,54 +28,61 @@ import org.springframework.web.client.RestClientException;
 @Service
 public class WeatherService {
 
-    private static final String BASE_URL = "https://api.open-meteo.com/v1/forecast";
+  private static final String BASE_URL = "https://api.open-meteo.com/v1/forecast";
 
-    private static final Logger log = LoggerFactory.getLogger(WeatherService.class);
+  private static final Logger log = LoggerFactory.getLogger(WeatherService.class);
 
-    private final RestClient restClient;
+  private final RestClient restClient;
 
-    public WeatherService() {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(Duration.ofSeconds(5));
-        requestFactory.setReadTimeout(Duration.ofSeconds(10));
+  public WeatherService() {
+    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+    requestFactory.setConnectTimeout(Duration.ofSeconds(5));
+    requestFactory.setReadTimeout(Duration.ofSeconds(10));
 
-        this.restClient = RestClient.builder()
-                .baseUrl(BASE_URL)
-                .defaultHeader("Accept", "application/vnd.api+json")
-                .defaultHeader("User-Agent", "WeatherApiClient/1.0 (kai@toedter.com)")
-                .requestFactory(requestFactory)
-                .build();
+    this.restClient =
+        RestClient.builder()
+            .baseUrl(BASE_URL)
+            .defaultHeader("Accept", "application/vnd.api+json")
+            .defaultHeader("User-Agent", "WeatherApiClient/1.0 (kai@toedter.com)")
+            .requestFactory(requestFactory)
+            .build();
+  }
+
+  /**
+   * Get current weather for specific latitude and longitude
+   *
+   * @param latitude Latitude
+   * @param longitude Longitude
+   * @return The current weather for the given location
+   */
+  @McpTool(
+      name = "get_weather_forecast_by_location",
+      description = "Get the current weather forecast for a specific location.",
+      annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = true))
+  public String getWeatherForecastByLocation(
+      @McpToolParam(description = "Latitude of the location, between -90 and 90") double latitude,
+      @McpToolParam(description = "Longitude of the location, between -180 and 180")
+          double longitude) {
+
+    if (latitude < -90 || latitude > 90) {
+      throw new IllegalArgumentException("latitude must be between -90 and 90");
+    }
+    if (longitude < -180 || longitude > 180) {
+      throw new IllegalArgumentException("longitude must be between -180 and 180");
     }
 
-    /**
-     * Get current weather for specific latitude and longitude
-     *
-     * @param latitude  Latitude
-     * @param longitude Longitude
-     * @return The current weather for the given location
-     */
-    @McpTool(name = "get_weather_forecast_by_location",
-            description = "Get the current weather forecast for a specific location.",
-            annotations = @McpTool.McpAnnotations(readOnlyHint = true, openWorldHint = true))
-    public String getWeatherForecastByLocation(
-            @McpToolParam(description = "Latitude of the location, between -90 and 90") double latitude,
-            @McpToolParam(description = "Longitude of the location, between -180 and 180") double longitude) {
-
-        if (latitude < -90 || latitude > 90) {
-            throw new IllegalArgumentException("latitude must be between -90 and 90");
-        }
-        if (longitude < -180 || longitude > 180) {
-            throw new IllegalArgumentException("longitude must be between -180 and 180");
-        }
-
-        try {
-            return restClient.get()
-                    .uri("?latitude={latitude}&longitude={longitude}&current=temperature_2m,weathercode,windspeed_10m,precipitation", latitude, longitude)
-                    .retrieve()
-                    .body(String.class);
-        } catch (RestClientException e) {
-            throw ToolErrors.sanitized(log, "Unable to fetch the weather forecast from the upstream service", e);
-        }
+    try {
+      return restClient
+          .get()
+          .uri(
+              "?latitude={latitude}&longitude={longitude}&current=temperature_2m,weathercode,windspeed_10m,precipitation",
+              latitude,
+              longitude)
+          .retrieve()
+          .body(String.class);
+    } catch (RestClientException e) {
+      throw ToolErrors.sanitized(
+          log, "Unable to fetch the weather forecast from the upstream service", e);
     }
-
+  }
 }
