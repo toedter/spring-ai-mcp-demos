@@ -46,7 +46,7 @@ public class ChatController {
     this.chatClient =
         chatClientBuilder
             .defaultSystem("You are a friendly assistant that can use tools when needed.")
-            .defaultToolCallbacks(guardedTools.toArray(new ToolCallback[0]))
+            .defaultTools(guardedTools)
             .build();
   }
 
