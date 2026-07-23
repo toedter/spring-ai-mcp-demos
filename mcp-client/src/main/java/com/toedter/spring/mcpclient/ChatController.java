@@ -24,7 +24,9 @@ import reactor.core.scheduler.Schedulers;
  * Exposes the chat endpoints consumed by the Angular chatbot. The streaming endpoint drives a
  * human-in-the-loop flow: whenever the model wants to run an MCP tool, an {@code approval} event is
  * pushed to the browser and the tool call blocks until the user approves or denies it via {@code
- * /api/chat/approve}.
+ * /api/chat/approve}. Once approved, the weather tool additionally pauses for an {@code
+ * elicitation} event if no temperature unit was specified, resolved via {@code
+ * /api/chat/elicitation-decision} (see {@link TemperatureUnitElicitationToolCallback}).
  */
 @RestController
 public class ChatController {
@@ -37,9 +39,14 @@ public class ChatController {
       ToolCallbackProvider tools,
       ApprovalRegistry approvalRegistry) {
     this.approvalRegistry = approvalRegistry;
-    // Wrap every MCP tool so it requires user approval before executing.
+    // Wrap every MCP tool so it requires user approval before executing; the
+    // weather tool is further wrapped so it asks for a preferred temperature
+    // unit (once approved) if the model didn't already supply one.
     List<ToolCallback> guardedTools =
         Arrays.stream(tools.getToolCallbacks())
+            .map(
+                tc ->
+                    (ToolCallback) new TemperatureUnitElicitationToolCallback(tc, approvalRegistry))
             .map(tc -> (ToolCallback) new ApprovalToolCallback(tc, approvalRegistry))
             .toList();
     this.chatClient =
@@ -127,6 +134,13 @@ public class ChatController {
     return Map.of("ok", true);
   }
 
+  /** Receives the user's chosen temperature unit for a pending elicitation. */
+  @PostMapping("/api/chat/elicitation-decision")
+  public Map<String, Object> elicitationDecision(@RequestBody ElicitationDecision decision) {
+    approvalRegistry.complete(decision.id(), decision.unit());
+    return Map.of("ok", true);
+  }
+
   private void streamWords(Sinks.Many<String> sink, String text) {
     // Split keeping trailing spaces so words re-join naturally in the UI.
     String[] tokens = text.split("(?<= )");
@@ -175,4 +189,6 @@ public class ChatController {
   public record Message(String role, String text) {}
 
   public record ApprovalDecision(String id, boolean approved) {}
+
+  public record ElicitationDecision(String id, String unit) {}
 }

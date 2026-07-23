@@ -13,6 +13,7 @@ import { ThemeService, Theme } from './theme.service';
 import {
   MCP_CHAT_URL,
   MCP_APPROVE_URL,
+  MCP_ELICITATION_DECISION_URL,
 } from './config';
 
 interface PendingApproval {
@@ -20,6 +21,13 @@ interface PendingApproval {
   tool: string;
   description: string;
   arguments: string;
+}
+
+/** A pending temperature-unit elicitation awaiting the user's choice. */
+interface PendingElicitation {
+  id: string;
+  message: string;
+  options: string[];
 }
 
 /**
@@ -34,13 +42,14 @@ interface DeepChatSignals {
 
 /** A single event pushed by the mcp-client streaming endpoint. */
 interface StreamEvent {
-  type: 'chunk' | 'status' | 'approval' | 'error';
+  type: 'chunk' | 'status' | 'approval' | 'elicitation' | 'error';
   text?: string;
   message?: string;
   id?: string;
   tool?: string;
   description?: string;
   arguments?: string;
+  options?: string[];
 }
 
 @Component({
@@ -62,12 +71,16 @@ export class App {
   /** The tool call currently awaiting the user's approval (or null). */
   protected readonly pendingApproval = signal<PendingApproval | null>(null);
 
+  /** The temperature-unit elicitation currently awaiting the user's choice (or null). */
+  protected readonly pendingElicitation = signal<PendingElicitation | null>(null);
+
   /** Reference to the deep-chat host element, used to fill its text input. */
   private readonly chatRef = viewChild<ElementRef<HTMLElement>>('chatRef');
 
   /** Sample questions the user can pick to fill the message input. */
   protected readonly sampleQuestions: string[] = [
     "Which movie is Kai's favorite quote from?",
+    "What's the weather in Munich?",
     "What's the weather in Munich in Fahrenheit?",
     'Which movies of director Christopher Nolan are in the IMDB top 5?',
     'Show me the mcp server token.',
@@ -362,6 +375,13 @@ export class App {
           arguments: evt.arguments ?? '{}',
         });
         break;
+      case 'elicitation':
+        this.pendingElicitation.set({
+          id: evt.id ?? '',
+          message: evt.message ?? '',
+          options: evt.options ?? [],
+        });
+        break;
       case 'error':
         signals.onResponse({ error: evt.message ?? 'Unexpected error' });
         break;
@@ -390,5 +410,20 @@ export class App {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: pending.id, approved }),
     }).catch((error) => console.error('Failed to submit approval decision', error));
+  }
+
+  /** User picked their preferred temperature unit for the pending elicitation. */
+  chooseTemperatureUnit(unit: string): void {
+    const pending = this.pendingElicitation();
+    if (!pending) {
+      return;
+    }
+    this.pendingElicitation.set(null);
+
+    this.authFetch(MCP_ELICITATION_DECISION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: pending.id, unit }),
+    }).catch((error) => console.error('Failed to submit elicitation decision', error));
   }
 }

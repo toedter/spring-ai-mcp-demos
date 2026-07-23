@@ -92,6 +92,20 @@
         </div>
       }
 
+      @if (pendingElicitation(); as elicitation) {
+        <div class="approval-overlay">
+          <div class="approval-dialog">
+            <h2 class="approval-title">🌡️ Preference needed</h2>
+            <p class="approval-text">{{ elicitation.message }}</p>
+            <div class="approval-actions">
+              @for (option of elicitation.options; track option) {
+                <button class="btn" (click)="chooseTemperatureUnit(option)">{{ option }}</button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
     </div>
   } @else {
     <section class="login-hint">
