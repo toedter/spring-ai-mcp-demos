@@ -8,9 +8,8 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Component;
 
 /**
- * Coordinates every kind of human-in-the-loop decision this client requires before a
- * server-initiated action proceeds: tool-call approval, sampling approval, and elicitation
- * responses. Each pending decision is registered under a generated id; the caller blocks on {@link
+ * Coordinates human-in-the-loop tool-call approval decisions before a server-initiated action
+ * proceeds. Each pending decision is registered under a generated id; the caller blocks on {@link
  * #await} while the decision arrives asynchronously (from the browser) via one of {@link
  * ChatController}'s decision endpoints, which calls {@link #complete}.
  */
@@ -35,7 +34,7 @@ public class ApprovalRegistry {
     }
   }
 
-  /** Convenience for the common approve/deny case (tool calls, sampling). */
+  /** Convenience for the common approve/deny case (tool calls). */
   public boolean awaitApproval(String id, Duration timeout) {
     return await(id, timeout, Boolean.FALSE);
   }

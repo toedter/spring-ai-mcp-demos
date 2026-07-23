@@ -53,6 +53,7 @@ public class WeatherService {
    *
    * @param latitude Latitude
    * @param longitude Longitude
+   * @param unit Preferred temperature unit, "celsius" or "fahrenheit"
    * @return The current weather for the given location
    */
   @McpTool(
@@ -62,7 +63,12 @@ public class WeatherService {
   public String getWeatherForecastByLocation(
       @McpToolParam(description = "Latitude of the location, between -90 and 90") double latitude,
       @McpToolParam(description = "Longitude of the location, between -180 and 180")
-          double longitude) {
+          double longitude,
+      @McpToolParam(
+              required = false,
+              description =
+                  "Preferred temperature unit: \"celsius\" or \"fahrenheit\". Defaults to celsius.")
+          String unit) {
 
     if (latitude < -90 || latitude > 90) {
       throw new IllegalArgumentException("latitude must be between -90 and 90");
@@ -71,13 +77,19 @@ public class WeatherService {
       throw new IllegalArgumentException("longitude must be between -180 and 180");
     }
 
+    String temperatureUnit = unit == null || unit.isBlank() ? "celsius" : unit.toLowerCase();
+    if (!temperatureUnit.equals("celsius") && !temperatureUnit.equals("fahrenheit")) {
+      throw new IllegalArgumentException("unit must be either \"celsius\" or \"fahrenheit\"");
+    }
+
     try {
       return restClient
           .get()
           .uri(
-              "?latitude={latitude}&longitude={longitude}&current=temperature_2m,weathercode,windspeed_10m,precipitation",
+              "?latitude={latitude}&longitude={longitude}&current=temperature_2m,weathercode,windspeed_10m,precipitation&temperature_unit={unit}",
               latitude,
-              longitude)
+              longitude,
+              temperatureUnit)
           .retrieve()
           .body(String.class);
     } catch (RestClientException e) {

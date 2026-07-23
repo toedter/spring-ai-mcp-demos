@@ -48,12 +48,12 @@ service is ready before the next one that depends on it starts:
 4. Ask "Which movie is Kai's favorite quote from?"
 5. Approve the tool call in the Chatbot
 6. The chatbot will call the MCP client, which calls the MCP server, which calls the OpenAI API to get the answer.
-7. Try "Write a haiku about the weather in Munich." and "What temperature unit do I prefer?"
-   to see mcp-client's human-in-the-loop MCP sampling and elicitation support in action.
+7. Try "What's the weather in Munich in Fahrenheit?" to see the weather tool's
+   preferred-unit parameter.
 
 See [`mcp-client/COMPLIANCE.md`](mcp-client/COMPLIANCE.md) for how mcp-client maps to the
-MCP client design guidelines (human-in-the-loop tool/sampling/elicitation approval, token
-handling, timeouts, capability negotiation, ...).
+MCP client design guidelines (human-in-the-loop tool approval, token handling,
+timeouts, capability negotiation, ...).
 
 ## Licenses
 

@@ -17,7 +17,7 @@ spring:
       server:
         name: demo-mcp-server
         version: 0.0.1
-        protocol: STREAMABLE
+        protocol: STATELESS
         enabled: true
         streamable-http:
           mcp-endpoint: /api/mcp
