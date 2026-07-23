@@ -52,10 +52,6 @@ service is ready before the next one that depends on it starts:
    temperature unit before calling the tool, or "What's the weather in Munich in
    Fahrenheit?" to see it skip that question when you already specified a unit.
 
-See [`mcp-client/COMPLIANCE.md`](mcp-client/COMPLIANCE.md) for how mcp-client maps to the
-MCP client design guidelines (human-in-the-loop tool approval, token handling,
-timeouts, capability negotiation, ...).
-
 ## Licenses
 
 - mcp-authorization-server is licensed under the Apache License, Version 2.0
