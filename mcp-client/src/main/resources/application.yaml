@@ -25,7 +25,7 @@ spring:
       client:
         streamable-http:
           connections:
-            weather-x-mcp-server:
+            demo-mcp-server:
               url: http://localhost:8082
               endpoint: /api/mcp
               keep-alive-interval: 50s

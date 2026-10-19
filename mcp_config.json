@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "weather-x" : {
+chore    "demo-mcp-server" : {
       "command": "java",
       "args": [
         "-jar",
