@@ -12,7 +12,7 @@ export const MCP_ELICITATION_DECISION_URL = 'http://localhost:8083/api/chat/elic
 /** OpenID Connect configuration pointing at the mcp-authorization-server. */
 export const authConfig: AuthConfig = {
   // Spring Authorization Server issuer (must match the discovery document).
-  issuer: 'http://localhost:9000',
+  issuer: 'http://localhost:9001',
   // The SPA is redirected back here after a successful login.
   redirectUri: window.location.origin,
   postLogoutRedirectUri: window.location.origin,

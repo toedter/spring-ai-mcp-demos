@@ -10,7 +10,7 @@ through the [deep-chat](https://deepchat.dev/) web component.
 ## Prerequisites
 Start the backends first (from the repository root):
 ```powershell
-# 1. Authorization server (port 9000)
+# 1. Authorization server (port 9001)
 .\gradlew.bat :mcp-authorization-server:bootRun
 # 2. MCP client (port 8083) - requires the SIEMENS_LLM_API_KEY env var
 #    and the mcp-server jar built (.\gradlew.bat :mcp-server:bootJar)
@@ -32,12 +32,12 @@ After a successful login you are redirected back to the app, the toolbar shows
 chatting.
 ## Configuration
 All endpoints are defined in `src/app/config.ts`:
-- `issuer` - authorization server (`http://localhost:9000`)
+- `issuer` - authorization server (`http://localhost:9001`)
 - `clientId` - `mcp-chatbot-client` (public PKCE client)
 - `MCP_CHAT_URL` - mcp-client deep-chat endpoint (`http://localhost:8083/api/chat`)
 ## How it fits together
 ```
-Angular (deep-chat)  --1. OIDC login (code+PKCE)-->  mcp-authorization-server (:9000)
-Angular (deep-chat)  <-- id/access token ----------  mcp-authorization-server (:9000)
+Angular (deep-chat)  --1. OIDC login (code+PKCE)-->  mcp-authorization-server (:9001)
+Angular (deep-chat)  <-- id/access token ----------  mcp-authorization-server (:9001)
 Angular (deep-chat)  --2. POST /api/chat (+Bearer)-> mcp-client (:8083) --> mcp-server / OpenAI
 ```

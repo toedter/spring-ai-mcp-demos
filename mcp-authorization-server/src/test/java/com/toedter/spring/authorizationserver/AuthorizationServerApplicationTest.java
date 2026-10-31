@@ -88,7 +88,7 @@ class AuthorizationServerApplicationTest {
     JwsHeader.Builder jwsHeaderBuilder = JwsHeader.with(SignatureAlgorithm.RS256);
     JwtClaimsSet.Builder claimsBuilder =
         JwtClaimsSet.builder()
-            .issuer("http://localhost:9000")
+            .issuer("http://localhost:9001")
             .subject("test-user")
             .claim(OAuth2ParameterNames.SCOPE, authorizedScopes);
 

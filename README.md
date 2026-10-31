@@ -31,7 +31,7 @@ client and the Angular chatbot.
 Both scripts start the services in this order, with short delays so each
 service is ready before the next one that depends on it starts:
 
-1. MCP Authorization Server — http://localhost:9000
+1. MCP Authorization Server — http://localhost:9001
 2. MCP Server — http://localhost:8082
 3. MCP Client — http://localhost:8083
 4. MCP Chatbot (Angular) — http://localhost:4200

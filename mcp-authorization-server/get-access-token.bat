@@ -1,1 +1,1 @@
-curl -X POST "http://localhost:9000/oauth2/token" -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=mcp-client-client&client_secret=mcp-client-secret&grant_type=client_credentials&scope=mcp.tools"
+curl -X POST "http://localhost:9001/oauth2/token" -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=mcp-client-client&client_secret=mcp-client-secret&grant_type=client_credentials&scope=mcp.tools"

@@ -3,7 +3,7 @@ setlocal
 
 rem ---------------------------------------------------------------------
 rem Starts the full Spring AI MCP demo stack in separate console windows:
-rem   1. MCP Authorization Server  (http://localhost:9000)
+rem   1. MCP Authorization Server  (http://localhost:9001)
 rem   2. MCP Server                (http://localhost:8082)
 rem   3. MCP Client                (http://localhost:8083)
 rem   4. MCP Chatbot (Angular)     (http://localhost:4200)
@@ -18,7 +18,7 @@ echo ==========================================================
 echo  Starting Spring AI MCP Demo stack
 echo ==========================================================
 
-echo [1/4] Starting MCP Authorization Server (http://localhost:9000) ...
+echo [1/4] Starting MCP Authorization Server (http://localhost:9001) ...
 start "MCP Authorization Server" cmd /k "cd /d "%ROOT%" && gradlew.bat :mcp-authorization-server:bootRun"
 
 echo     Waiting for the authorization server to come up...

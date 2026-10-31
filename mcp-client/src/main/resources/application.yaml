@@ -6,7 +6,7 @@ server.port: 8083
 # get-access-token.bat. See McpServiceTokenProvider.
 mcp:
   service-token:
-    token-uri: http://localhost:9000/oauth2/token
+    token-uri: http://localhost:9001/oauth2/token
     client-id: mcp-client-client
     client-secret: mcp-client-secret
     scope: mcp.tools mcp.tools.movies mcp.tools.weather mcp.tools.diagnostics
@@ -16,8 +16,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:9000/oauth2/jwks
-          issuer-uri: http://localhost:9000
+          jwk-set-uri: http://localhost:9001/oauth2/jwks
+          issuer-uri: http://localhost:9001
           audiences: mcp-audience
 
   ai:

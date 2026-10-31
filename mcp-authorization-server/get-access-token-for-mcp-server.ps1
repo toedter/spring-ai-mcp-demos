@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [string]$AuthServer = "http://localhost:9000",
+  [string]$AuthServer = "http://localhost:9001",
   [string]$Username = "john@doe.com",
   [string]$Password = "john",
   [string]$ChatbotClientId = "mcp-chatbot-client",

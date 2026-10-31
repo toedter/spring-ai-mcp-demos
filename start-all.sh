@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Starts the full Spring AI MCP demo stack:
-#   1. MCP Authorization Server  (http://localhost:9000)
+#   1. MCP Authorization Server  (http://localhost:9001)
 #   2. MCP Server                (http://localhost:8082)
 #   3. MCP Client                (http://localhost:8083)
 #   4. MCP Chatbot (Angular)     (http://localhost:4200)
@@ -35,7 +35,7 @@ echo "=========================================================="
 echo " Starting Spring AI MCP Demo stack"
 echo "=========================================================="
 
-echo "[1/4] Starting MCP Authorization Server (http://localhost:9000) ..."
+echo "[1/4] Starting MCP Authorization Server (http://localhost:9001) ..."
 ./gradlew :mcp-authorization-server:bootRun > "$LOG_DIR/mcp-authorization-server.log" 2>&1 &
 PIDS+=($!)
 
