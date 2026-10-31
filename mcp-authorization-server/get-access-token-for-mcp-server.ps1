@@ -7,15 +7,22 @@ param(
   [string]$RedirectUri = "http://localhost:4200",
   [string]$Scope = "openid profile mcp.tools mcp.tools.movies mcp.tools.weather mcp.tools.diagnostics",
   [string]$McpClientId = "mcp-client-client",
-  [string]$McpClientSecret = "mcp-client-secret"
+  [string]$McpClientSecret = "mcp-client-secret",
+  [string]$McpServerClientId = "mcp-server-client",
+  [string]$McpServerClientSecret = "mcp-server-secret"
 )
 
 # Gets a real end-user access token (via the mcp-chatbot-client
 # authorization_code + PKCE flow, logging in as a demo user) and then
-# exchanges it (RFC 8693 OAuth 2.0 Token Exchange) for a delegated access
-# token that mcp-server will accept, with mcp-client-client added as the
-# "act" (actor) claim while the user's "sub" claim is preserved. This
-# mirrors TokenExchangeService.exchangeUserToken(...) in mcp-client.
+# exchanges it twice (RFC 8693 OAuth 2.0 Token Exchange) so the final access
+# token carries the whole delegation chain:
+#   1. mcp-client-client exchanges the user's token, adding itself as the
+#      first (innermost) actor -- mirrors TokenExchangeService in mcp-client.
+#   2. mcp-server-client exchanges that already-delegated token again,
+#      adding itself as a second (outermost) actor on top -- mirrors
+#      TokenService in mcp-server.
+# The resulting token keeps "sub" = the original end user, with a two-level
+# "act" chain: act.sub = mcp-server-client, act.act.sub = mcp-client-client.
 #
 # A client-credentials token alone cannot be used as the subject_token here:
 # the authorization server only accepts a real, previously-issued user
@@ -74,7 +81,7 @@ function New-CodeChallenge([string]$verifier) {
 
 $cookieJar = New-Object System.Net.CookieContainer
 
-Write-Host "Step 1/5: loading the login page to obtain a CSRF token..."
+Write-Host "Step 1/7: loading the login page to obtain a CSRF token..."
 $loginPageResponse = Get-WebResponse -Uri "$AuthServer/login" -CookieJar $cookieJar
 $loginPageContent = Read-ResponseBody -Response $loginPageResponse
 $loginPageResponse.Close()
@@ -82,7 +89,7 @@ $csrfMatch = [regex]::Match($loginPageContent, 'name="_csrf"[^>]*value="([^"]+)"
 if (-not $csrfMatch.Success) { throw "Could not find a CSRF token on the login page." }
 $csrfToken = $csrfMatch.Groups[1].Value
 
-Write-Host "Step 2/5: logging in as $Username..."
+Write-Host "Step 2/7: logging in as $Username..."
 $loginForm = "username=$([Uri]::EscapeDataString($Username))&password=$([Uri]::EscapeDataString($Password))&_csrf=$([Uri]::EscapeDataString($csrfToken))"
 $loginResponse = Get-WebResponse -Uri "$AuthServer/login" -Method "POST" -CookieJar $cookieJar -FormBody $loginForm
 $loginLocation = $loginResponse.Headers["Location"]
@@ -91,7 +98,7 @@ if (-not $loginLocation -or $loginLocation -match "error") {
   throw "Login failed for user '$Username' (redirected to '$loginLocation'). Check the username/password."
 }
 
-Write-Host "Step 3/5: requesting an authorization code for $ChatbotClientId (PKCE)..."
+Write-Host "Step 3/7: requesting an authorization code for $ChatbotClientId (PKCE)..."
 $codeVerifier = New-CodeVerifier
 $codeChallenge = New-CodeChallenge $codeVerifier
 $state = [Guid]::NewGuid().ToString("N")
@@ -114,7 +121,7 @@ if (-not $codeMatch.Success) {
 }
 $authorizationCode = [Uri]::UnescapeDataString($codeMatch.Groups[1].Value)
 
-Write-Host "Step 4/5: exchanging the authorization code for $Username's access token..."
+Write-Host "Step 4/7: exchanging the authorization code for $Username's access token..."
 $tokenUri = "$AuthServer/oauth2/token"
 $tokenBody = @{
   grant_type    = "authorization_code"
@@ -129,30 +136,54 @@ $subjectToken = $userTokenResponse.access_token
 if (-not $subjectToken) { throw "Authorization-code exchange did not return an access_token." }
 Write-Host "$Username's access token acquired."
 
-Write-Host "Step 5/5: exchanging it (RFC 8693 token-exchange) for an access token for mcp-server..."
-$actorTokenResponse = Invoke-RestMethod -Uri $tokenUri -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
+Write-Host "Step 5/7: obtaining mcp-client-client's own access token (actor_token)..."
+$mcpClientActorTokenResponse = Invoke-RestMethod -Uri $tokenUri -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
   grant_type    = "client_credentials"
   client_id     = $McpClientId
   client_secret = $McpClientSecret
   scope         = "mcp.tools"
 }
-$actorToken = $actorTokenResponse.access_token
-if (-not $actorToken) { throw "Could not obtain mcp-client's own client-credentials access token." }
+$mcpClientActorToken = $mcpClientActorTokenResponse.access_token
+if (-not $mcpClientActorToken) { throw "Could not obtain mcp-client's own client-credentials access token." }
 
-$exchangeResponse = Invoke-RestMethod -Uri $tokenUri -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
+Write-Host "Step 6/7: exchanging the user's token (RFC 8693) to add mcp-client-client as the first actor..."
+$mcpClientExchangeResponse = Invoke-RestMethod -Uri $tokenUri -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
   grant_type         = "urn:ietf:params:oauth:grant-type:token-exchange"
   subject_token      = $subjectToken
   subject_token_type = "urn:ietf:params:oauth:token-type:access_token"
-  actor_token        = $actorToken
+  actor_token        = $mcpClientActorToken
   actor_token_type   = "urn:ietf:params:oauth:token-type:access_token"
   client_id          = $McpClientId
-  client_secret      = $McpClientSecret
+  client_secret       = $McpClientSecret
   scope              = "mcp.tools"
 }
-$mcpServerToken = $exchangeResponse.access_token
-if (-not $mcpServerToken) { throw "Token exchange did not return an access_token." }
+$mcpClientDelegatedToken = $mcpClientExchangeResponse.access_token
+if (-not $mcpClientDelegatedToken) { throw "Token exchange for mcp-client-client did not return an access_token." }
+
+Write-Host "Step 7/7: exchanging that token again (RFC 8693) to add mcp-server-client as a second actor..."
+$mcpServerActorTokenResponse = Invoke-RestMethod -Uri $tokenUri -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
+  grant_type    = "client_credentials"
+  client_id     = $McpServerClientId
+  client_secret = $McpServerClientSecret
+  scope         = "mcp.tools"
+}
+$mcpServerActorToken = $mcpServerActorTokenResponse.access_token
+if (-not $mcpServerActorToken) { throw "Could not obtain mcp-server's own client-credentials access token." }
+
+$mcpServerExchangeResponse = Invoke-RestMethod -Uri $tokenUri -Method Post -ContentType "application/x-www-form-urlencoded" -Body @{
+  grant_type         = "urn:ietf:params:oauth:grant-type:token-exchange"
+  subject_token      = $mcpClientDelegatedToken
+  subject_token_type = "urn:ietf:params:oauth:token-type:access_token"
+  actor_token        = $mcpServerActorToken
+  actor_token_type   = "urn:ietf:params:oauth:token-type:access_token"
+  client_id          = $McpServerClientId
+  client_secret      = $McpServerClientSecret
+  scope              = "mcp.tools"
+}
+$mcpServerToken = $mcpServerExchangeResponse.access_token
+if (-not $mcpServerToken) { throw "Token exchange for mcp-server-client did not return an access_token." }
 
 Write-Host ""
-Write-Host "Access token for mcp-server (sub=$Username, act.sub=$McpClientId):"
+Write-Host "Access token for mcp-server (sub=$Username, act.sub=$McpServerClientId, act.act.sub=$McpClientId):"
 Write-Output $mcpServerToken
 
