@@ -52,6 +52,22 @@ service is ready before the next one that depends on it starts:
    temperature unit before calling the tool, or "What's the weather in Munich in
    Fahrenheit?" to see it skip that question when you already specified a unit.
 
+## Connecting with the MCP Inspector
+
+The MCP server advertises its authorization server via
+[RFC 9728](https://datatracker.ietf.org/doc/html/rfc9728) protected resource metadata, and the
+authorization server has a public PKCE client `mcp-inspector-client` registered for the
+Inspector's callback URLs.
+
+1. Start `mcp-authorization-server` and `mcp-server`.
+2. Run `npx @modelcontextprotocol/inspector` (UI on http://localhost:6274 or http://127.0.0.1:6274).
+3. Set **Transport Type** to `Streamable HTTP` and **URL** to `http://localhost:8082/api/mcp`.
+4. Under **Authentication** → **OAuth 2.0 Flow**, set **Client ID** to `mcp-inspector-client`
+   (leave the secret empty) and **Scope** to
+   `mcp.tools mcp.tools.movies mcp.tools.weather mcp.tools.diagnostics`.
+5. Click **Connect** and log in as `john@doe.com` / `john` or `jane@doe.com` / `jane`.
+   The granted `mcp.tools.*` scopes are narrowed to that user's permissions.
+
 ## Licenses
 
 - mcp-authorization-server is licensed under the Apache License, Version 2.0

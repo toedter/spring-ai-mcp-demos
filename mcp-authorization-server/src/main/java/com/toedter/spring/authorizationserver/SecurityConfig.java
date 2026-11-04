@@ -26,9 +26,11 @@ public class SecurityConfig {
 
   /**
    * Origins that are allowed to call the authorization/token/userinfo endpoints from the browser
-   * (the Angular SPA runs on http://localhost:4200 by default).
+   * (the Angular SPA runs on http://localhost:4200, the MCP Inspector UI on port 6274 via localhost
+   * or 127.0.0.1).
    */
-  private static final List<String> ALLOWED_ORIGINS = List.of("http://localhost:4200");
+  private static final List<String> ALLOWED_ORIGINS =
+      List.of("http://localhost:4200", "http://localhost:6274", "http://127.0.0.1:6274");
 
   @Bean
   @Order(1)
